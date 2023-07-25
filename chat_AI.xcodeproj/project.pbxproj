@@ -24,6 +24,8 @@
 		35B3CB872A4043DE007E7D6B /* BalloonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B3CB862A4043DE007E7D6B /* BalloonView.swift */; };
 		35B3CB892A45729C007E7D6B /* ChatStorage.db in Resources */ = {isa = PBXBuildFile; fileRef = 35B3CB882A45729C007E7D6B /* ChatStorage.db */; };
 		35B3CB8D2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */; };
+		35B47ACE2A6A7577007B0C25 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B47ACD2A6A7577007B0C25 /* UIHelper.swift */; };
+		35B47AD02A6FC692007B0C25 /* NSObject+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */; };
 		35CBFAAE2A0CC4330053AEDE /* OSSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */; };
 		35CBFAB22A1CCAA10053AEDE /* TooltipViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */; };
 		35CE52922A00BBCF00158C85 /* OSSettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CE52912A00BBCF00158C85 /* OSSettingsTableViewController.swift */; };
@@ -87,6 +89,8 @@
 		35B3CB862A4043DE007E7D6B /* BalloonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonView.swift; sourceTree = "<group>"; };
 		35B3CB882A45729C007E7D6B /* ChatStorage.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = ChatStorage.db; path = ../../../../../../../Documents/ChatStorage.db; sourceTree = "<group>"; };
 		35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OoohBaby-Regular.ttf"; path = "../../관련자료/외부폰트/Oooh_Baby/OoohBaby-Regular.ttf"; sourceTree = "<group>"; };
+		35B47ACD2A6A7577007B0C25 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
+		35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Extensions.swift"; sourceTree = "<group>"; };
 		35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsViewModel.swift; sourceTree = "<group>"; };
 		35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipViewController.swift; sourceTree = "<group>"; };
 		35CE52912A00BBCF00158C85 /* OSSettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsTableViewController.swift; sourceTree = "<group>"; };
@@ -191,8 +195,17 @@
 			children = (
 				3584B5912A285A37000EF521 /* UIColor+Extensions.swift */,
 				35B3CB7E2A304E95007E7D6B /* Notification+Extensions.swift */,
+				35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */,
 			);
 			path = commonExtensions;
+			sourceTree = "<group>";
+		};
+		35B47ACC2A6A755A007B0C25 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				35B47ACD2A6A7577007B0C25 /* UIHelper.swift */,
+			);
+			path = Utility;
 			sourceTree = "<group>";
 		};
 		35DCA51429D4216E0020984A = {
@@ -221,6 +234,7 @@
 		35DCA51F29D4216E0020984A /* chat_AI */ = {
 			isa = PBXGroup;
 			children = (
+				35B47ACC2A6A755A007B0C25 /* Utility */,
 				356DBCC42A52A8D200EC1F15 /* controller */,
 				35DCA55029D6AF880020984A /* view */,
 				3584B5902A2859C4000EF521 /* commonExtensions */,
@@ -552,6 +566,8 @@
 				352C023F2A56718000AC6B51 /* SendButton.swift in Sources */,
 				356C061129F0CAA400ED33B7 /* InitialSetupViewController.swift in Sources */,
 				3521F73929DEB6AD009E51C2 /* ChatBubbleView.swift in Sources */,
+				35B47ACE2A6A7577007B0C25 /* UIHelper.swift in Sources */,
+				35B47AD02A6FC692007B0C25 /* NSObject+Extensions.swift in Sources */,
 				3584B58F2A1F609C000EF521 /* CustomAlertViewController.swift in Sources */,
 				35CBFAAE2A0CC4330053AEDE /* OSSettingsViewModel.swift in Sources */,
 				352332152A08C38A003294B1 /* OSSettingsViewController.swift in Sources */,

@@ -7,13 +7,43 @@
 
 import UIKit
 
+/// 초기 소개 페이지
 class InitialSetupViewController: UIViewController {
-    let layerPadding: UIEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-    let mainLayerPadding: CGFloat = 20
-    var labels = [UILabel]()
-    var nameLabel = UILabel()
-    let messages = ["성격부터 행동까지, \nAI를 직접 설정하세요.", "당신이 원하는\nAI를 만들어보세요.", "직접 만든 AI와의\n대화를 통해\n놀라운 일들을 경험해보세요."]
-    var autoScrollTimer: Timer?
+    // MARK: - Properties and Constants
+    private let layerPadding: UIEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) // 4각 값이 같아서 굳이 방향별로 값을 적을 필요는없지만 가독성이좋은 느낌이랄까
+    private var labels = [UILabel]()
+    private let messages = ["성격부터 행동까지, \nAI를 직접 설정하세요.", "당신이 원하는\nAI를 만들어보세요.", "직접 만든 AI와의\n대화를 통해\n놀라운 일들을 경험해보세요."]
+    private var autoScrollTimer: Timer?
+    private let numberOfPages = 4
+
+    // MARK: - UI Components
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.text = "OS1 "
+        label.textAlignment = .center
+        label.alpha = 0
+        label.font = UIFont(name: "OoohBaby-Regular", size: 70)
+        return label
+    }()
+    
+    private let horizontalStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    private let pageControl: UIPageControl = {
+        let pageControl = UIPageControl()
+        pageControl.currentPage = 0
+        pageControl.pageIndicatorTintColor = .lightGray
+        pageControl.currentPageIndicatorTintColor = .black
+        pageControl.translatesAutoresizingMaskIntoConstraints = false
+        pageControl.isUserInteractionEnabled = false
+        return pageControl
+    }()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -22,57 +52,8 @@ class InitialSetupViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
-    
-    private let pageControl = UIPageControl()
-    private let numberOfPages = 4
-    
-    // 스크롤 뷰 설정
-    private func setupScrollView() {
-        scrollView.isPagingEnabled = true
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.delegate = self
-        scrollView.backgroundColor = .green
         
-        mainContainerView.addSubview(scrollView)
-        
-        NSLayoutConstraint.activate([
-           scrollView.leadingAnchor.constraint(equalTo: mainContainerView.leadingAnchor),
-           scrollView.trailingAnchor.constraint(equalTo: mainContainerView.trailingAnchor),
-           scrollView.topAnchor.constraint(equalTo: mainContainerView.topAnchor),
-           scrollView.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor)
-        ])
-        
-        mainContainerView.layoutIfNeeded()
-        scrollView.layoutIfNeeded()
-        
-        for i in 0..<numberOfPages {
-            let pageView = UIView(frame: CGRect(x: CGFloat(i) * mainContainerView.bounds.width, y: 0, width: mainContainerView.bounds.width, height: mainContainerView.bounds.height))
-            pageView.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(numberOfPages), saturation: 0.8, brightness: 0.9, alpha: 1)
-            scrollView.addSubview(pageView)
-        }
-
-        scrollView.contentSize = CGSize(width: mainContainerView.bounds.width * CGFloat(numberOfPages), height: mainContainerView.bounds.height)
-
-    }
-
-    // 페이지 컨트롤 설정
-    private func setupPageControl() {
-        pageControl.numberOfPages = numberOfPages
-        pageControl.currentPage = 0
-        pageControl.pageIndicatorTintColor = .lightGray
-        pageControl.currentPageIndicatorTintColor = .black
-        pageControl.translatesAutoresizingMaskIntoConstraints = false
-        pageControl.isUserInteractionEnabled = false
-        view.addSubview(pageControl)
-
-        NSLayoutConstraint.activate([
-            pageControl.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor, constant: -16),
-            pageControl.centerXAnchor.constraint(equalTo: mainContainerView.centerXAnchor)
-        ])
-    }
-    
-    // 전송 버튼 생성합니다.
-    private let resultButton: UIButton = {
+    private let startButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitleColor(UIColor.secondaryBackgroundColor, for: .normal)
         button.backgroundColor = .primaryBackgroundColor
@@ -80,33 +61,62 @@ class InitialSetupViewController: UIViewController {
         button.alpha = 0
         button.setTitle("시작하기", for: .normal)
         button.setTitleColor(.secondaryBackgroundColor, for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20) // 폰트 사이즈를 20으로 변경
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
     }()
     
-    private let mainContainerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    // MARK: - View Lifecycle
     
     override func viewDidLoad() {
+        debugPrint_START()
+        
         super.viewDidLoad()
-        print(#function)
         setupUI()
-        setupPageControl()
-
+        
+        debugPrint_END()
     }
     
+    /// Safe Area 여백이 변경되었을 때 호출되는 메서드
     override func viewSafeAreaInsetsDidChange() {
-        print(#function, "-START")
-        setCAShapeLayer()
-    }
+        debugPrint_START()
+        
+        // 배경 테두리 그리기
+        let safeArea = view.safeAreaLayoutGuide
 
+        let outerRect = CGRect(x: safeArea.layoutFrame.minX + layerPadding.left, // + 10
+                            y: safeArea.layoutFrame.minY + layerPadding.top,
+                            width: safeArea.layoutFrame.width - layerPadding.left - layerPadding.right, // -20
+                            height: safeArea.layoutFrame.height - layerPadding.top - layerPadding.bottom) // -20
+
+        let innerRect = CGRect(x: safeArea.layoutFrame.minX + layerPadding.left * 2, // + 20
+                            y: safeArea.layoutFrame.minY + layerPadding.top * 2,
+                        width: safeArea.layoutFrame.width - (layerPadding.left * 2) - (layerPadding.right * 2), // - 40
+                            height: safeArea.layoutFrame.height - (layerPadding.top * 2) - (layerPadding.bottom * 2))
+
+        let mainRect = CGRect(x: safeArea.layoutFrame.minX + layerPadding.left * 3, // + 30
+                            y: safeArea.layoutFrame.minY + layerPadding.top * 3,
+                            width: safeArea.layoutFrame.width - (layerPadding.left * 3) - (layerPadding.right * 3), // -60
+                            height: safeArea.layoutFrame.height - (layerPadding.top * 3) - (layerPadding.bottom * 3))
+
+        let outerLayer = makeLayerWith(rect: outerRect, fillColor: UIColor.clear, strokeColor: UIColor.secondaryBackgroundColor, isShadow: true)
+        let innerLayer = makeLayerWith(rect: innerRect, fillColor: UIColor.clear, strokeColor: UIColor.secondaryBackgroundColor)
+        let mainLayer = makeLayerWith(rect: mainRect, fillColor: UIColor.secondaryBackgroundColor, strokeColor: UIColor.secondaryBackgroundColor)
+
+        innerLayer.addSublayer(mainLayer)
+        outerLayer.addSublayer(innerLayer)
+        
+        // addSublayer(_:)는 레이어를 맨 위에 추가.
+        // insertSublayer(_:at:)는 지정된 위치에 레이어를 추가. (at: 0 = 맨 밑에 넣겠다는 뜻 )
+        view.layer.insertSublayer(outerLayer, at: 0)
+        
+        debugPrint_END()
+    }
     
     override func viewDidAppear(_ animated: Bool) {
+        debugPrint_START()
+        
         super.viewDidAppear(animated)
         // 첫 번째 라벨을 서서히 나타냄
         // 라벨을 서서히 나타냄
@@ -121,12 +131,17 @@ class InitialSetupViewController: UIViewController {
             self.autoScrollTimer = Timer.scheduledTimer(timeInterval: 3.5, target: self, selector: #selector(self.autoScroll), userInfo: nil, repeats: true)
             
         })
+        
+        debugPrint_END()
     }
     
-    // 자동 스크롤 메소드
+    // MARK: - Action Methods
+    
+    /// 자동 스크롤 함수
     @objc func autoScroll() {
-        print(#function)
-        let nextPage: Int = Int(scrollView.contentOffset.x / mainContainerView.bounds.width) + 1
+        debugPrint_START()
+        
+        let nextPage: Int = Int(scrollView.contentOffset.x / scrollView.bounds.width) + 1
         if nextPage < numberOfPages {
             UIView.animate(withDuration: 0.3, animations: {
                 self.scrollView.contentOffset = CGPoint(x: self.scrollView.bounds.width * CGFloat(nextPage), y: 0)
@@ -136,218 +151,206 @@ class InitialSetupViewController: UIViewController {
         } else {
             autoScrollTimer?.invalidate()
         }
+        
+        debugPrint_END()
     }
     
     
-    @objc func resultButtonTapped(_ sender: UIButton) {
+    /// 시작버튼 터치 함수
+    /// - Parameter sender: UIButton
+    @objc func startButtonTapped(_ sender: UIButton) {
+        debugPrint_START()
+        
         // 현재 뷰 컨트롤러에서 다음 뷰 컨트롤러를 모달로 표시합니다.
-        print(#function)
         let settingsVC = OSSettingsViewController(isStartupView: true)
 
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let sceneDelegate = windowScene.delegate as? SceneDelegate {
-            completeInitialSetup()
+            // 초기셋팅이 끝으로 다음부터는 초기소개화면이 안나오도록 true값을 줌
+            UserDefaults.standard.set(true, forKey: "initialSetupCompleted")
             sceneDelegate.changeRootVC(settingsVC, animated: true)
         }
+        
+        debugPrint_END()
     }
+        
+    // MARK: - Interface Setup
     
-    func completeInitialSetup() {
-        print(#function, "- START")
-        UserDefaults.standard.set(true, forKey: "initialSetupCompleted")
-    }
     
-    func setCAShapeLayer() {
-        let safeArea = view.safeAreaLayoutGuide
-
-        let paddedRect = CGRect(x: safeArea.layoutFrame.minX + layerPadding.left,
-                                y: safeArea.layoutFrame.minY + layerPadding.top,
-                                width: safeArea.layoutFrame.width - layerPadding.left - layerPadding.right,
-                                height: safeArea.layoutFrame.height - layerPadding.top - layerPadding.bottom)
-
-        let path = UIBezierPath(rect: paddedRect)
-
-        let outerLayer = CAShapeLayer()
-        outerLayer.path = path.cgPath
-        outerLayer.strokeColor = UIColor.secondaryBackgroundColor.cgColor
-        outerLayer.fillColor = UIColor.clear.cgColor
-        outerLayer.lineWidth = 5.0 // 선의 두께 설정
-        
-        let innerLayer = CAShapeLayer()
-        let innerLayerPaddedRect = CGRect(x: safeArea.layoutFrame.minX + layerPadding.left + mainLayerPadding - 10,
-                                y: safeArea.layoutFrame.minY + layerPadding.top + mainLayerPadding - 10,
-                                width: safeArea.layoutFrame.width - layerPadding.left - layerPadding.right - mainLayerPadding,
-                                height: safeArea.layoutFrame.height - layerPadding.top - layerPadding.bottom - mainLayerPadding)
-
-        let path2 = UIBezierPath(rect: innerLayerPaddedRect)
-        innerLayer.path = path2.cgPath
-        innerLayer.strokeColor = UIColor.secondaryBackgroundColor.cgColor
-        innerLayer.fillColor = UIColor.clear.cgColor
-        innerLayer.lineWidth = 5.0 // 선의 두께 설정
-        
-        let mainLayer = CAShapeLayer()
-        let mainLayerPaddedRect = CGRect(x: safeArea.layoutFrame.minX + layerPadding.left + mainLayerPadding,
-                                y: safeArea.layoutFrame.minY + layerPadding.top + mainLayerPadding,
-                                width: safeArea.layoutFrame.width - layerPadding.left - layerPadding.right - mainLayerPadding * 2,
-                                height: safeArea.layoutFrame.height - layerPadding.top - layerPadding.bottom - mainLayerPadding * 2)
-        
-        let path3 = UIBezierPath(rect: mainLayerPaddedRect)
-        mainLayer.path = path3.cgPath
-        mainLayer.strokeColor = UIColor.secondaryBackgroundColor.cgColor
-        mainLayer.fillColor = UIColor.secondaryBackgroundColor.cgColor
-        mainLayer.lineWidth = 5.0 // 선의 두께 설정
-
-        // 그림자 효과 설정
-        outerLayer.shadowColor = UIColor.black.cgColor
-        outerLayer.shadowOpacity = 0.4 // 그림자의 투명도 설정 (0 ~ 1 사이의 값)
-        outerLayer.shadowOffset = CGSize(width: 4, height: 4) // 그림자의 위치 오프셋 설정
-        outerLayer.shadowRadius = 6 // 그림자의 흐림 정도 설정
-        
-        innerLayer.addSublayer(mainLayer)
-        outerLayer.addSublayer(innerLayer)
-        view.layer.insertSublayer(outerLayer,at: 0)
-    }
-    
-    // UI초기화 메서드
+    /// UI초기화 메서드
     private func setupUI() {
-        view.backgroundColor = .tertiaryBackgroundColor
-        view.addSubview(mainContainerView)
-        mainContainerView.addSubview(scrollView)
-        resultButton.addTarget(self, action: #selector(resultButtonTapped(_:)), for: .touchUpInside)
+        debugPrint_START()
+        
+        pageControl.numberOfPages = self.numberOfPages
+        
+        startButton.addTarget(self, action: #selector(startButtonTapped(_:)), for: .touchUpInside)
+        
         scrollView.delegate = self
+        
+        scrollView.addSubview(horizontalStackView)
+        view.backgroundColor = .tertiaryBackgroundColor
+        view.addSubview(scrollView)
+        view.addSubview(pageControl)
+        
 
         // 제약조건 활성화
         NSLayoutConstraint.activate([
-            mainContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.minY + layerPadding.top + mainLayerPadding),
-            mainContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,constant: -(view.safeAreaLayoutGuide.layoutFrame.minY + layerPadding.bottom + mainLayerPadding)),
-            
-            mainContainerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -(layerPadding.right + mainLayerPadding) ),
-            mainContainerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: layerPadding.left + mainLayerPadding),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.minY + (layerPadding.top * 3)),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,constant: -(view.safeAreaLayoutGuide.layoutFrame.minY + (layerPadding.bottom * 3))),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -(layerPadding.right * 3)),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: layerPadding.left * 3),
 
-            scrollView.leadingAnchor.constraint(equalTo: mainContainerView.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: mainContainerView.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: mainContainerView.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor)
+            pageControl.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -16),
+            pageControl.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+        
+            horizontalStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            horizontalStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            horizontalStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            horizontalStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
         ])
 
-        scrollView.layoutIfNeeded()
-
+        // 각 페이지 뷰 생성
         for i in 0..<numberOfPages {
-            let pageView = UIView()
-            pageView.translatesAutoresizingMaskIntoConstraints = false
-            pageView.backgroundColor = .clear
-           
-            // UILabel 추가
-            if i == 0 {
-                // 라벨 생성
-                let label1 = UILabel()
-                label1.textColor = .black
-                label1.text = "Hello \n I'm"
-                label1.textAlignment = .center
-                label1.alpha = 0
-                label1.numberOfLines = 0
-                label1.font = UIFont.boldSystemFont(ofSize: 40) // 폰트 크기 변경
-                
-                nameLabel.textColor = .black
-                nameLabel.text = "OS1 "
-                nameLabel.textAlignment = .center
-                nameLabel.alpha = 0
-                nameLabel.font = UIFont(name: "OoohBaby-Regular", size: 70)
+            let pageView = createPageView(forPage: i)
 
-
-                // 스택뷰 생성
-                let stackView = UIStackView(arrangedSubviews: [label1, nameLabel])
-                stackView.axis = .vertical
-                stackView.distribution = .fill
-                stackView.spacing = 10
-                stackView.translatesAutoresizingMaskIntoConstraints = false
-                labels.append(label1)
-                pageView.addSubview(stackView)
-                stackView.centerXAnchor.constraint(equalTo: pageView.centerXAnchor).isActive = true
-                stackView.centerYAnchor.constraint(equalTo: pageView.centerYAnchor,constant: -60).isActive = true
-            } else {
-                let label = UILabel()
-                label.translatesAutoresizingMaskIntoConstraints = false
-                label.text = messages[i - 1]
-                label.font = UIFont.boldSystemFont(ofSize: 26) // 폰트 크기 변경
-                label.textColor = .black
-                label.textAlignment = .center
-                label.alpha = 0 // 처음에 레이블이 보이지 않게 설정
-                label.numberOfLines = 0
-                labels.append(label)
-                
-                if i == numberOfPages - 1{
-                    print("이것은 마지막 반복입니다.")
-                    // 여기에 마지막 반복일 때 수행할 작업을 넣을 수 있습니다.
-                    let buttonContainer = UIView()
-                    buttonContainer.addSubview(resultButton)
-
-                    // 버튼의 크기와 위치 설정
-                    NSLayoutConstraint.activate([
-                        resultButton.centerXAnchor.constraint(equalTo: buttonContainer.centerXAnchor),
-                        resultButton.centerYAnchor.constraint(equalTo: buttonContainer.centerYAnchor),
-                        resultButton.widthAnchor.constraint(equalToConstant: 100),  // 버튼의 넓이
-                        resultButton.heightAnchor.constraint(equalToConstant: 50)   // 버튼의 높이
-                    ])
-                    
-                    // 스택뷰 생성
-                    let stackView = UIStackView(arrangedSubviews: [label, buttonContainer])
-                    stackView.axis = .vertical
-                    stackView.distribution = .fillEqually
-                    stackView.spacing = 10
-                    stackView.translatesAutoresizingMaskIntoConstraints = false
-                                        
-                    pageView.addSubview(stackView)
-                    stackView.centerXAnchor.constraint(equalTo: pageView.centerXAnchor).isActive = true
-                    stackView.centerYAnchor.constraint(equalTo: pageView.centerYAnchor,constant: -30).isActive = true
-                    
-                } else {
-                    pageView.addSubview(label)
-                    label.centerXAnchor.constraint(equalTo: pageView.centerXAnchor).isActive = true
-                    label.centerYAnchor.constraint(equalTo: pageView.centerYAnchor,constant: -60).isActive = true
-                }
-            }
-
-            scrollView.addSubview(pageView)
-           
+            horizontalStackView.addArrangedSubview(pageView)
+            
             NSLayoutConstraint.activate([
-               pageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: scrollView.bounds.width * CGFloat(i)),
-               pageView.topAnchor.constraint(equalTo: mainContainerView.topAnchor),
-               pageView.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor),
-               pageView.widthAnchor.constraint(equalTo: mainContainerView.widthAnchor),
+                pageView.topAnchor.constraint(equalTo: horizontalStackView.topAnchor),
+                pageView.bottomAnchor.constraint(equalTo: horizontalStackView.bottomAnchor),
+                pageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                pageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
             ])
+        }
+        
+        debugPrint_END()
+    }
+        
+    /// 페이지 생성
+    /// - Parameter page: 페이지 번호
+    /// - Returns: 페이지뷰
+    func createPageView(forPage page: Int) -> UIView {
+        debugPrint_START()
+        
+        let pageView = UIView()
+        pageView.translatesAutoresizingMaskIntoConstraints = false
+        pageView.backgroundColor = .clear
 
+        let label = UILabel()
+        label.textColor = .black
+        label.textAlignment = .center
+        label.alpha = 0 // 처음에 레이블이 보이지 않게 설정
+        label.numberOfLines = 0
+
+        var contentItem: UIView? = nil
+        
+        if page == 0 {
+            // 첫 페이지
+            label.text = "Hello \n I'm"
+            label.font = UIFont.boldSystemFont(ofSize: 40) // 폰트 크기 변경
+            contentItem = nameLabel
+            
+        } else {
+            // 나머지 페이지
+            label.text = messages[page - 1]
+            label.font = UIFont.boldSystemFont(ofSize: 26) // 폰트 크기 변경
+            
+            // 마지막 페이지
+            if page == numberOfPages - 1 {
+                contentItem = startButton
+                // 스택뷰는 내부적으로 오토레이아웃으로 뷰를 배치하기에 직접 프레임을 설정한 버튼의 크기가 적용이 안될 수 있어 버튼 크기를 오토레이아웃으로 설정함
+                startButton.widthAnchor.constraint(equalToConstant: 100).isActive = true  // 버튼의 넓이
+                startButton.heightAnchor.constraint(equalToConstant: 50).isActive = true   // 버튼의 높이
+            } else {
+                label.translatesAutoresizingMaskIntoConstraints = false
+                pageView.addSubview(label)
+                label.centerXAnchor.constraint(equalTo: pageView.centerXAnchor).isActive = true
+                label.centerYAnchor.constraint(equalTo: pageView.centerYAnchor,constant: -60).isActive = true
+            }
+        }
+        
+        // 첫 페이지 또는 마지막 페이지
+        if let item = contentItem {
+            let stackView = UIStackView(arrangedSubviews: [label, item])
+            stackView.axis = .vertical
+            stackView.alignment = .center
+            stackView.spacing = 10
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            pageView.addSubview(stackView)
+            stackView.centerXAnchor.constraint(equalTo: pageView.centerXAnchor).isActive = true
+            stackView.centerYAnchor.constraint(equalTo: pageView.centerYAnchor,constant: page == 0 ? -60 : -30).isActive = true
         }
 
-        scrollView.layoutIfNeeded()
-
-        scrollView.contentSize = CGSize(width: (scrollView.subviews.first?.bounds.width)! * CGFloat(numberOfPages), height: mainContainerView.bounds.height)
+        labels.append(label)
+        
+        debugPrint_END()
+        return pageView
     }
-
+    
+    
+    /// 배경 테두리 만들기
+    /// - Parameters:
+    ///   - rect: 사각형 모양
+    ///   - fillColor: 채우기 색깔
+    ///   - strokeColor: 선 색깔
+    ///   - isShadow: 그림자 유무
+    /// - Returns: 테두리
+    func makeLayerWith(rect: CGRect, fillColor: UIColor, strokeColor: UIColor, isShadow: Bool = false) -> CAShapeLayer {
+        let path = UIBezierPath(rect: rect)
+        let layer = CAShapeLayer()
+        layer.path = path.cgPath
+        layer.strokeColor = strokeColor.cgColor
+        layer.fillColor = fillColor.cgColor
+        layer.lineWidth = 5.0
+        
+        if isShadow {
+            layer.shadowColor = UIColor.black.cgColor
+            layer.shadowOpacity = 0.4
+            layer.shadowOffset = CGSize(width: 4, height: 4)
+            layer.shadowRadius = 6
+        }
+        
+        return layer
+    }
 }
 
+// MARK: - Extensions
+
 extension InitialSetupViewController: UIScrollViewDelegate  {
+    
+    /// 스크롤 제스처가 끝났을때
+    /// - Parameter scrollView: UIScrollView
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-       let page = Int(scrollView.contentOffset.x / scrollView.bounds.width)
-       pageControl.currentPage = page
+        debugPrint_START()
         
-        guard page < 4, labels[page].alpha != 1.0 else { return }
-        print(#function)
+        let page = Int(scrollView.contentOffset.x / scrollView.bounds.width)
+        pageControl.currentPage = page
+        
+        guard page < 4, labels[page].alpha != 1.0 else { return debugPrint_END() }
         // 라벨을 서서히 나타냄
         UIView.animate(withDuration: 2.0, animations: {
             self.labels[page].alpha = 1.0
         }, completion: { _ in
             if page == self.numberOfPages - 1 {
                 UIView.animate(withDuration: 1, animations: {
-                    self.resultButton.alpha = 1.0
+                    self.startButton.alpha = 1.0
                 })
             }
         })
+        
+        debugPrint_END()
     }
     
+    /// 스크롤 제스처를 시작할때
+    /// - Parameter scrollView: UIScrollView
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        debugPrint_START()
+        
         // 사용자가 스크롤시 자동 스크롤을 종료함
         autoScrollTimer?.invalidate()
         autoScrollTimer = nil
+        
+        debugPrint_END()
     }
 }
 
