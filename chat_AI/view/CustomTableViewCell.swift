@@ -94,6 +94,7 @@ extension CustomTableViewCell: UITextViewDelegate {
         // 수동으로 text의 마지막값을 제거 하며 return값으 false로 입력된 백스페이스 기능을 못하게 막음으로써 현재 문제 해결
         // text.count == 0 :가 0 인경우는 즉 공백 백스페이스 경우 이다 코드내에서 직접적으로 text = "" 으로 하지않는 이상 현재까지는 백스페이스 이외의 경우를 발견하지 못했다
         // range.location + 1 >= characterLimit : 플러스 1을 한 이유는 입력되고 난뒤의 위치를 표시하기에 제한길에 맞추기 위한값 (백스페이스 위치 맨뒤)
+        print(currentText.count, characterLimit, text.count)
         if text.count == 0 && currentText.count >= characterLimit && range.location + 1 >= characterLimit {
             textView.text.removeLast()
             characterLimitLabel.text = "\(textView.text.count)/\(characterLimit)"
@@ -104,6 +105,7 @@ extension CustomTableViewCell: UITextViewDelegate {
     }
     
     func textViewDidChange(_ textView: UITextView) {
+        print(#function)
         // 텍스트 뷰의 현재 텍스트를 가져옵니다.
         let currentText = textView.text ?? ""
         
