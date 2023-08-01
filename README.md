@@ -19,9 +19,8 @@
 - DBMS: SQLite, FMDB
 - API: OpenAI's GPT-3
 
-## 🏗 프로젝트 구조
-프로젝트는 크게 AI 대화 관리, 사용자 설정 관리, 데이터베이스 관리의 세 부분으로 구성되어 있습니다. 각 부분은 서로 독립적으로 동작하며 필요에 따라 데이터를 주고 받습니다.
-
 ## 🔗 참고자료
-- OpenAI GPT API 문서: [링크]([https://openai.com/research/](https://platform.openai.com/docs/guides/gpt))
-- FMDB 문서: [링크]([https://github.com/ccgus/fmdb](https://ccgus.github.io/fmdb/html/index.html))
+- [OpenAI GPT API 문서](https://platform.openai.com/docs/guides/gpt)
+
+## 앱스토어 다운로드
+<a href="https://apps.apple.com/kr/app/os1-ai-chat/id6450975130?itsct=apps_box_badge&amp;itscg=30200" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/ko-kr?size=250x83&amp;releaseDate=1689206400" alt="Download on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
