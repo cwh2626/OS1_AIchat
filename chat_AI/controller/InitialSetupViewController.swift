@@ -175,8 +175,7 @@ class InitialSetupViewController: UIViewController {
     }
         
     // MARK: - Interface Setup
-    
-    
+        
     /// UI초기화 메서드
     private func setupUI() {
         debugPrint_START()
@@ -247,13 +246,13 @@ class InitialSetupViewController: UIViewController {
         if page == 0 {
             // 첫 페이지
             label.text = "Hello \n I'm"
-            label.font = UIFont.boldSystemFont(ofSize: 40) // 폰트 크기 변경
+            label.font = UIFont.boldSystemFont(ofSize: 40) // 폰트 크기
             contentItem = nameLabel
             
         } else {
             // 나머지 페이지
             label.text = messages[page - 1]
-            label.font = UIFont.boldSystemFont(ofSize: 26) // 폰트 크기 변경
+            label.font = UIFont.boldSystemFont(ofSize: 26)
             
             // 마지막 페이지
             if page == numberOfPages - 1 {

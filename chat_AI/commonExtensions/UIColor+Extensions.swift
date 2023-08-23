@@ -8,9 +8,9 @@
 import UIKit
 
 extension UIColor {
-    static let primaryBackgroundColor = UIColor(red: 220/255.0, green: 98/255.0, blue: 79/255.0, alpha: 1.0)
+    static let primaryBackgroundColor = UIColor(red: 220/255.0, green: 98/255.0, blue: 79/255.0, alpha: 1.0) // #DC624F
     
-    static let secondaryBackgroundColor = UIColor(red: 225/255.0, green: 224/255.0, blue: 214/255.0, alpha: 1.0)
+    static let secondaryBackgroundColor = UIColor(red: 225/255.0, green: 224/255.0, blue: 214/255.0, alpha: 1.0) // #E1E0D6
     
-    static let tertiaryBackgroundColor = UIColor(red: 197/255.0, green: 62/255.0, blue: 41/255.0, alpha: 1.0)
+    static let tertiaryBackgroundColor = UIColor(red: 197/255.0, green: 62/255.0, blue: 41/255.0, alpha: 1.0) // #C53E29
 }

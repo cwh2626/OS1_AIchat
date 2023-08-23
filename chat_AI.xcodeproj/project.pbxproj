@@ -28,7 +28,6 @@
 		35B47AD02A6FC692007B0C25 /* NSObject+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */; };
 		35CBFAAE2A0CC4330053AEDE /* OSSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */; };
 		35CBFAB22A1CCAA10053AEDE /* TooltipViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */; };
-		35CE52922A00BBCF00158C85 /* OSSettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CE52912A00BBCF00158C85 /* OSSettingsTableViewController.swift */; };
 		35CE52942A00C82300158C85 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CE52932A00C82300158C85 /* CustomTableViewCell.swift */; };
 		35DCA52129D4216E0020984A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA52029D4216E0020984A /* AppDelegate.swift */; };
 		35DCA52329D4216E0020984A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA52229D4216E0020984A /* SceneDelegate.swift */; };
@@ -93,7 +92,6 @@
 		35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Extensions.swift"; sourceTree = "<group>"; };
 		35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsViewModel.swift; sourceTree = "<group>"; };
 		35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipViewController.swift; sourceTree = "<group>"; };
-		35CE52912A00BBCF00158C85 /* OSSettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsTableViewController.swift; sourceTree = "<group>"; };
 		35CE52932A00C82300158C85 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		35DCA51D29D4216E0020984A /* chat_AI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chat_AI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35DCA52029D4216E0020984A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -162,7 +160,6 @@
 			children = (
 				356C061029F0CAA400ED33B7 /* InitialSetupViewController.swift */,
 				35DCA52429D4216E0020984A /* MainViewController.swift */,
-				35CE52912A00BBCF00158C85 /* OSSettingsTableViewController.swift */,
 				352332142A08C38A003294B1 /* OSSettingsViewController.swift */,
 				35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */,
 				3584B58E2A1F609C000EF521 /* CustomAlertViewController.swift */,
@@ -578,7 +575,6 @@
 				35DCA52129D4216E0020984A /* AppDelegate.swift in Sources */,
 				35CBFAB22A1CCAA10053AEDE /* TooltipViewController.swift in Sources */,
 				3521F73B29DEC859009E51C2 /* PaddedLabel.swift in Sources */,
-				35CE52922A00BBCF00158C85 /* OSSettingsTableViewController.swift in Sources */,
 				35CE52942A00C82300158C85 /* CustomTableViewCell.swift in Sources */,
 				35DCA55529D6C61C0020984A /* GPTChatViewModel.swift in Sources */,
 				356DBCC22A52925A00EC1F15 /* Environment.swift in Sources */,

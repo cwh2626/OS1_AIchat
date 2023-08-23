@@ -34,6 +34,7 @@ class CustomTableViewCell: UITableViewCell {
         textView.textColor = .secondaryBackgroundColor
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isEditable = false
+//        textView.sizeToFit()
         return textView
     }()
 
@@ -124,7 +125,7 @@ extension CustomTableViewCell: UITextViewDelegate {
         
         // 길이를 라벨에 표시합니다.
         characterLimitLabel.text = "\(length)/\(characterLimit)"
-        
+
         delegate?.textViewDidChange(text: textView.text, cell: self)
     }
 }

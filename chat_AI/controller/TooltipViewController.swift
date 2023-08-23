@@ -8,10 +8,10 @@
 import UIKit
 
 class TooltipViewController: UIViewController {
-    let message: String
-    let padding: CGFloat = 10.0
-    var label = UILabel()
-    var scrollView = UIScrollView()
+    private let message: String
+    private let padding: CGFloat = 10.0
+    private var label = UILabel()
+    private var scrollView = UIScrollView()
     
     
     init(message: String) {
