@@ -7,13 +7,15 @@
 
 import UIKit
 
+/// 설정 카드 테이블뷰의 커스텀셀
 class CustomTableViewCell: UITableViewCell {
     weak var delegate: CustomTableViewCellDelegate?
     
-    // 글자 수 제한을 설정합니다.
+    // MARK: - Properties
+    // 글자 수 제한값
     private let characterLimit = 500
     
-    // 글자 수 제한 라벨
+    // MARK: - UI Components
     let characterLimitLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12)
@@ -34,23 +36,31 @@ class CustomTableViewCell: UITableViewCell {
         textView.textColor = .secondaryBackgroundColor
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isEditable = false
-//        textView.sizeToFit()
         return textView
     }()
 
-    
+    // MARK: - Initializers
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        Environment.debugPrint_START()
+        
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
+        
+        Environment.debugPrint_END()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Interface Setup
     private func setupViews() {
+        Environment.debugPrint_START()
+        
         self.backgroundColor = .clear
         self.selectionStyle = .none
+        
+        textView.delegate = self
         
         contentView.addSubview(textView)
         contentView.addSubview(characterLimitLabel)
@@ -65,25 +75,35 @@ class CustomTableViewCell: UITableViewCell {
             characterLimitLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
         ])
         
-        // textView의 delegate를 설정합니다.
-        textView.delegate = self
+        Environment.debugPrint_END()
     }
         
-    func characterLimitLabelInit(textRange: Int){
+    func cellInit(text: String, delegate: CustomTableViewCellDelegate){
+        Environment.debugPrint_START()
+        
+        self.delegate = delegate
+        self.textView.text = text
+        
         // 현재 텍스트의 길이를 라벨에 표시합니다.
-        characterLimitLabel.text = "\(textRange)/\(characterLimit)"
+        characterLimitLabel.text = "\(text.count)/\(characterLimit)"
+        
+        Environment.debugPrint_END()
     }
 }
 
+// MARK: - Extensions
 extension CustomTableViewCell: UITextViewDelegate {
     
     // UITextViewDelegate 메서드입니다. 텍스트 뷰의 텍스트가 변경될 때마다 호출됩니다.
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-
+        Environment.debugPrint_START()
+        
         // 텍스트 뷰의 현재 텍스트와 새로 입력되는 텍스트를 결합합니다.
         let currentText = textView.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: text)
+        #if DEBUG
         print(#function,"현재 문자열: \(currentText), 합쳐진 문자열: \(prospectiveText), 문자열 길이: \(prospectiveText.count), 입력되어진 문자열\(text), range.location: \(range.location), range.length: \(range.length)")
+        #endif
     
         // replacingCharacters 로는 한글의 자음과 모음이 기대값이 나오지않기에 현재 한글의 제한 방법을
         // textViewDidChange함수에서 제한길이를 초과할경우 길이를 넘어간 만큼 자르기로 했다
@@ -95,18 +115,20 @@ extension CustomTableViewCell: UITextViewDelegate {
         // 수동으로 text의 마지막값을 제거 하며 return값으 false로 입력된 백스페이스 기능을 못하게 막음으로써 현재 문제 해결
         // text.count == 0 :가 0 인경우는 즉 공백 백스페이스 경우 이다 코드내에서 직접적으로 text = "" 으로 하지않는 이상 현재까지는 백스페이스 이외의 경우를 발견하지 못했다
         // range.location + 1 >= characterLimit : 플러스 1을 한 이유는 입력되고 난뒤의 위치를 표시하기에 제한길에 맞추기 위한값 (백스페이스 위치 맨뒤)
-        print(currentText.count, characterLimit, text.count)
         if text.count == 0 && currentText.count >= characterLimit && range.location + 1 >= characterLimit {
             textView.text.removeLast()
             characterLimitLabel.text = "\(textView.text.count)/\(characterLimit)"
             return false
         }
         
+        Environment.debugPrint_END()
+        
         return true
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        print(#function)
+        Environment.debugPrint_START()
+        
         // 텍스트 뷰의 현재 텍스트를 가져옵니다.
         let currentText = textView.text ?? ""
         
@@ -127,9 +149,12 @@ extension CustomTableViewCell: UITextViewDelegate {
         characterLimitLabel.text = "\(length)/\(characterLimit)"
 
         delegate?.textViewDidChange(text: textView.text, cell: self)
+        
+        Environment.debugPrint_END()
     }
 }
 
+// MARK: - Protocol
 protocol CustomTableViewCellDelegate: AnyObject {
     func textViewDidChange(text: String, cell: CustomTableViewCell)
 }

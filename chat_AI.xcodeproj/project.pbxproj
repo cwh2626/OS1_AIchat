@@ -25,7 +25,6 @@
 		35B3CB892A45729C007E7D6B /* ChatStorage.db in Resources */ = {isa = PBXBuildFile; fileRef = 35B3CB882A45729C007E7D6B /* ChatStorage.db */; };
 		35B3CB8D2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */; };
 		35B47ACE2A6A7577007B0C25 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B47ACD2A6A7577007B0C25 /* UIHelper.swift */; };
-		35B47AD02A6FC692007B0C25 /* NSObject+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */; };
 		35CBFAAE2A0CC4330053AEDE /* OSSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */; };
 		35CBFAB22A1CCAA10053AEDE /* TooltipViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */; };
 		35CE52942A00C82300158C85 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CE52932A00C82300158C85 /* CustomTableViewCell.swift */; };
@@ -90,7 +89,6 @@
 		35B3CB882A45729C007E7D6B /* ChatStorage.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = ChatStorage.db; path = ../../../../../../../Documents/ChatStorage.db; sourceTree = "<group>"; };
 		35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OoohBaby-Regular.ttf"; path = "../../관련자료/외부폰트/Oooh_Baby/OoohBaby-Regular.ttf"; sourceTree = "<group>"; };
 		35B47ACD2A6A7577007B0C25 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
-		35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Extensions.swift"; sourceTree = "<group>"; };
 		35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsViewModel.swift; sourceTree = "<group>"; };
 		35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipViewController.swift; sourceTree = "<group>"; };
 		35CE52932A00C82300158C85 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
@@ -194,7 +192,6 @@
 			children = (
 				3584B5912A285A37000EF521 /* UIColor+Extensions.swift */,
 				35B3CB7E2A304E95007E7D6B /* Notification+Extensions.swift */,
-				35B47ACF2A6FC692007B0C25 /* NSObject+Extensions.swift */,
 			);
 			path = commonExtensions;
 			sourceTree = "<group>";
@@ -575,7 +572,6 @@
 				356C061129F0CAA400ED33B7 /* InitialSetupViewController.swift in Sources */,
 				3521F73929DEB6AD009E51C2 /* ChatBubbleView.swift in Sources */,
 				35B47ACE2A6A7577007B0C25 /* UIHelper.swift in Sources */,
-				35B47AD02A6FC692007B0C25 /* NSObject+Extensions.swift in Sources */,
 				3584B58F2A1F609C000EF521 /* CustomAlertViewController.swift in Sources */,
 				35CBFAAE2A0CC4330053AEDE /* OSSettingsViewModel.swift in Sources */,
 				352332152A08C38A003294B1 /* OSSettingsViewController.swift in Sources */,

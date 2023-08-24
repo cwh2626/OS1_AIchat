@@ -9,7 +9,7 @@ import UIKit
 
 /// 초기 소개 페이지
 class InitialSetupViewController: UIViewController {
-    // MARK: - Properties and Constants
+    // MARK: - Properties
     private let layerPadding: UIEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) // 4각 값이 같아서 굳이 방향별로 값을 적을 필요는없지만 가독성이좋은 느낌이랄까
     private var labels = [UILabel]()
     private let messages = ["성격부터 행동까지, \nAI를 직접 설정하세요.", "당신이 원하는\nAI를 만들어보세요.", "직접 만든 AI와의\n대화를 통해\n놀라운 일들을 경험해보세요."]
@@ -70,17 +70,17 @@ class InitialSetupViewController: UIViewController {
     // MARK: - View Lifecycle
     
     override func viewDidLoad() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         super.viewDidLoad()
         setupUI()
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     /// Safe Area 여백이 변경되었을 때 호출되는 메서드
     override func viewSafeAreaInsetsDidChange() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 배경 테두리 그리기
         let safeArea = view.safeAreaLayoutGuide
@@ -111,11 +111,11 @@ class InitialSetupViewController: UIViewController {
         // insertSublayer(_:at:)는 지정된 위치에 레이어를 추가. (at: 0 = 맨 밑에 넣겠다는 뜻 )
         view.layer.insertSublayer(outerLayer, at: 0)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         super.viewDidAppear(animated)
         // 첫 번째 라벨을 서서히 나타냄
@@ -132,14 +132,14 @@ class InitialSetupViewController: UIViewController {
             
         })
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     // MARK: - Action Methods
     
     /// 자동 스크롤 함수
     @objc func autoScroll() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         let nextPage: Int = Int(scrollView.contentOffset.x / scrollView.bounds.width) + 1
         if nextPage < numberOfPages {
@@ -152,14 +152,14 @@ class InitialSetupViewController: UIViewController {
             autoScrollTimer?.invalidate()
         }
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     
     /// 시작버튼 터치 함수
     /// - Parameter sender: UIButton
     @objc func startButtonTapped(_ sender: UIButton) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 현재 뷰 컨트롤러에서 다음 뷰 컨트롤러를 모달로 표시합니다.
         let settingsVC = OSSettingsViewController(isStartupView: true)
@@ -171,14 +171,14 @@ class InitialSetupViewController: UIViewController {
             sceneDelegate.changeRootVC(settingsVC, animated: true)
         }
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
         
     // MARK: - Interface Setup
         
     /// UI초기화 메서드
     private func setupUI() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         pageControl.numberOfPages = self.numberOfPages
         
@@ -222,14 +222,14 @@ class InitialSetupViewController: UIViewController {
             ])
         }
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
         
     /// 페이지 생성
     /// - Parameter page: 페이지 번호
     /// - Returns: 페이지뷰
     func createPageView(forPage page: Int) -> UIView {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         let pageView = UIView()
         pageView.translatesAutoresizingMaskIntoConstraints = false
@@ -282,7 +282,7 @@ class InitialSetupViewController: UIViewController {
 
         labels.append(label)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
         return pageView
     }
     
@@ -320,12 +320,12 @@ extension InitialSetupViewController: UIScrollViewDelegate  {
     /// 스크롤 제스처가 끝났을때
     /// - Parameter scrollView: UIScrollView
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         let page = Int(scrollView.contentOffset.x / scrollView.bounds.width)
         pageControl.currentPage = page
         
-        guard page < 4, labels[page].alpha != 1.0 else { return debugPrint_END() }
+        guard page < 4, labels[page].alpha != 1.0 else { return Environment.debugPrint_END() }
         // 라벨을 서서히 나타냄
         UIView.animate(withDuration: 2.0, animations: {
             self.labels[page].alpha = 1.0
@@ -337,19 +337,19 @@ extension InitialSetupViewController: UIScrollViewDelegate  {
             }
         })
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     /// 스크롤 제스처를 시작할때
     /// - Parameter scrollView: UIScrollView
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 사용자가 스크롤시 자동 스크롤을 종료함
         autoScrollTimer?.invalidate()
         autoScrollTimer = nil
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
 }
 

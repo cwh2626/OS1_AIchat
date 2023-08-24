@@ -13,7 +13,7 @@ import RxCocoa
 
 /// 메인 채팅방
 class MainViewController: UIViewController, UITextFieldDelegate {
-    // MARK: - Properties and Constants
+    // MARK: - Properties
     private var rewardedAd: GADRewardedAd?
     private let viewModel = GPTChatViewModel()
     private var balanceCardView = BalanceCardView()
@@ -154,7 +154,7 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         super.viewDidLoad()
 
         setupUI()
@@ -202,7 +202,7 @@ class MainViewController: UIViewController, UITextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(restartAnimation), name: UIApplication.willEnterForegroundNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleDBChange), name: .didChangeDB, object: nil)
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     // 뷰가 화면에 완전히 나타난 직후에 호출됩니다. 뷰가 화면에 나타난 후 필요한 작업을 여기서 수행할 수 있습니다.

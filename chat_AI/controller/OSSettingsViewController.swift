@@ -11,7 +11,7 @@ import RxCocoa
 
 /// OS1 행동 및 성격 설정 페이지
 class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
-    // MARK: - Properties and Constants
+    // MARK: - Properties
     
     private var isStartupView: Bool
     private let toolTipMessage = "우측 상단의 '+' 버튼을 눌러 OS를 커스텀하세요. 성격, 행동 등을 직접 설정할 수 있습니다.\n\n최대 5개의 설정 카드를 추가할 수 있으며, 영어로 설정하는 것이 인식률을 향상시킬 수 있습니다."
@@ -19,7 +19,7 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
     private var sysData: [Chat] = []
     private let cellIdentifier = "CustomCell"
     private var expandedCellIndexPath: IndexPath?
-    private var viewModel = OSSettingsViewModel() // 뷰 모델 인스턴스
+    private var viewModel: OSSettingsViewModel! // 뷰 모델 인스턴스
     
     // conbine의.store(in: &cancellables) 와 비슷한기능이다 disposeBag 담아 두었다가 해당 변수가 deinit 타이밍에 dispose 하는 구조이다.
     // Observable의 메모리 누수 방지를 위한 자동 구독해지 기능이라고 생각하면 편할듯
@@ -66,7 +66,8 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         return label
     }()
     
-    // MARK: - View Lifecycle
+
+    // MARK: - Initializer
     
     init(isStartupView: Bool) {
         self.isStartupView = isStartupView
@@ -77,19 +78,23 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - View Lifecycle
+    
     override func viewDidLoad(){
-        debugPrint_START()
+        Environment.debugPrint_START()
         
+        let repository = ChatRepository()
+        viewModel = OSSettingsViewModel(repository: repository) // 뷰 모델 초기화
+        sysData = viewModel.loadData()
         super.viewDidLoad()
         setupUI()
-        sysData = viewModel.loadData()
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     // 나타날 때 알림 보내기
     override func viewDidAppear(_ animated: Bool) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         super.viewDidAppear(animated)
         if isStartupView {
@@ -99,25 +104,25 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         // 메인채팅방에서 키보드 문제로 인한 코드 -- 수정 필요 -- MainViewController 리펙토링 할 때 같이 진행
         NotificationCenter.default.post(name: .childViewControllerDidAppear, object: nil)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
 
     // 사라질 때 알림 보내기
     override func viewDidDisappear(_ animated: Bool) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         super.viewDidDisappear(animated)
         // 메인채팅방에서 키보드 문제로 인한 코드 -- 수정 필요 -- MainViewController 리펙토링 할 때 같이 진행
         NotificationCenter.default.post(name: .childViewControllerDidDisappear, object: nil)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     
     // MARK: - Action Methods
 
     @objc func startButtonTapped(_ sender: UIButton) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         // 현재 뷰 컨트롤러에서 다음 뷰 컨트롤러를 모달로 표시합니다.
         saveSystemSettings()
         
@@ -128,11 +133,11 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
             sceneDelegate.changeRootVC(mainVC, animated: true)
         }
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     @objc private func showTooltip(sender: UIBarButtonItem) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 팝오버로 표시할 뷰 컨트롤러 생성
         let tipsVC = TooltipViewController(message: toolTipMessage)
@@ -146,12 +151,12 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         // 팝오버 표시
         self.present(tipsVC, animated: true, completion: nil)
 
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     // 플러스 버튼이 눌렸을 때 실행되는 메서드
     @objc private func addButtonTapped() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 설정카드가 5개를 초과할 경우 경고 얼러터 표시
         guard self.settingCardTableView.numberOfRows(inSection: 0) < 5 else { return showAlert() }
@@ -160,23 +165,23 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         self.sysData.append(Chat.init())
         settingCardTableView.insertRows(at: [indexPath], with: .automatic)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     @objc private func closeButtonTapped() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         saveSystemSettings()
         self.dismiss(animated: true)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     // MARK: - Interface Setup
     
     // UI초기화 메서드
     private func setupUI() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         view.backgroundColor = .tertiaryBackgroundColor
         
@@ -219,11 +224,11 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
             startButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     private func setupNavigationbar() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         let navigationItem = UINavigationItem()
         
@@ -248,14 +253,14 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
 
         self.topNavigationBar.items = [navigationItem]
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     // MARK: - Utility Methods
     
     // CustomTableViewCellDelegate 프로토콜의 델리게이트 함수
     func textViewDidChange(text: String, cell: CustomTableViewCell) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         let indexPath = settingCardTableView.indexPath(for: cell)!
         let textView = cell.textView
@@ -270,11 +275,11 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
             settingCardTableView.endUpdates()
         }
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     private func selectedCell(cell: CustomTableViewCell, indexPath: IndexPath) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         expandedCellIndexPath = indexPath
         settingCardTableView.beginUpdates()
@@ -292,11 +297,11 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
             cell.characterLimitLabel.alpha = 1.0
         }
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     private func deselectedCell(cell: CustomTableViewCell, indexPath: IndexPath) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         expandedCellIndexPath = nil
         settingCardTableView.beginUpdates()
@@ -314,11 +319,11 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
             cell.characterLimitLabel.isHidden = true
         })
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     private func saveSystemSettings(){
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 선택된 행의 선택 상태를 해제합니다.(해제 타이밍에 sysData값이 갱신 되기 때문에 deselectedCell() 함수 확인)
         if let selectedIndexPath = settingCardTableView.indexPathForSelectedRow {
@@ -333,11 +338,11 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         // 입력되어진 시스템설정 텍스트를 뷰모델로 보냄
         viewModel.settingsitems.accept(filteredArr)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     private func tintedImage(image: UIImage, color: UIColor) -> UIImage {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 새로운 그림을 그릴 '캔버스'를 만들어줍니다. 그림의 크기는 원본 이미지의 크기와 같습니다.
         UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
@@ -371,7 +376,7 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         // 캔버스를 치웁니다. 그림을 다 그렸으니, 더 이상 캔버스가 필요하지 않습니다.
         UIGraphicsEndImageContext()
         
-        debugPrint_END()
+        Environment.debugPrint_END()
         
         // 새로 그린 그림을 돌려줍니다.
         return newImage
@@ -393,7 +398,7 @@ extension OSSettingsViewController: CustomAlertDelegate {
     }
     
     func showAlert() {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         let customAlertVC = CustomAlertViewController(
             alertText: "설정 카드는 최대 5개까지만\n추가하실 수 있습니다.",
@@ -403,7 +408,7 @@ extension OSSettingsViewController: CustomAlertDelegate {
 
         present(customAlertVC, animated: true, completion: nil)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     
@@ -426,22 +431,19 @@ extension OSSettingsViewController: UITableViewDataSource, UITableViewDelegate {
     // tableView.rowHeight = UITableView.automaticDimension 을 이용해서 컨테츠의 크기에 맞추어 자동으로 높이를 측정해주는 기능이 있지만
     // 현재 텍스트뷰의 위에 제한수를 띄우고 있기에 아래와 같은 메서드를 활용
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 재사용 가능한 셀을 큐에서 가져옵니다. 해당 셀이 CustomTableViewCell 타입이 아니면 기본 UITableViewCell을 반환합니다.
         guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? CustomTableViewCell else {return UITableViewCell()}
-        cell.delegate = self
-        cell.textView.text = sysData[indexPath.row].content
-        
+        cell.cellInit(text: sysData[indexPath.row].content, delegate: self)
         cell.textView.layoutIfNeeded()
         
-        cell.characterLimitLabelInit(textRange: sysData[indexPath.row].content.count)
         let size = cell.textView.bounds.size
         let newSize = cell.textView.sizeThatFits(CGSize(width: size.width, height: CGFloat.greatestFiniteMagnitude))
 
         cellHeights.append(newSize.height + 10 + cell.characterLimitLabel.font.lineHeight)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
         
         return cell
     }
@@ -450,46 +452,46 @@ extension OSSettingsViewController: UITableViewDataSource, UITableViewDelegate {
     
     // 유저가 직접 셀을 선택되었을 때 호출되는 메소드입니다.
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         guard let cell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell else { return }
         self.selectedCell(cell: cell, indexPath: indexPath)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         guard let cell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell else { return }
         self.deselectedCell(cell: cell, indexPath: indexPath)
         
-        debugPrint_END()
+        Environment.debugPrint_END()
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        debugPrint_START()
+        Environment.debugPrint_START()
         guard cellHeights.indices.contains(indexPath.row) else {
             return 100
         }
 
         if indexPath == expandedCellIndexPath {
             
-            debugPrint_END()
+            Environment.debugPrint_END()
             
             return cellHeights[indexPath.row]
         } else {
             let font = UIFont.systemFont(ofSize: 12)
             let lineHeight = font.lineHeight
             
-            debugPrint_END()
+            Environment.debugPrint_END()
             
             return cellHeights[indexPath.row] - lineHeight
         }
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        debugPrint_START()
+        Environment.debugPrint_START()
         
         // 선택 활성화가된 행의 선택 상태를 해제합니다.
         if let selectedIndexPath = tableView.indexPathForSelectedRow {
@@ -518,7 +520,7 @@ extension OSSettingsViewController: UITableViewDataSource, UITableViewDelegate {
 
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
 
-        debugPrint_END()
+        Environment.debugPrint_END()
         
         return configuration
     }

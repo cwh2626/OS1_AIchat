@@ -47,5 +47,16 @@ public enum Environment {
         }
         return id
     }()
+    
+    static func debugPrint_START(fileID: String = #fileID, function: String = #function, line: Int = #line) {
+        #if DEBUG
+        print("<== \(fileID) - \(function) - LINE:\(line) - START ==>")
+        #endif
+    }
+    static func debugPrint_END(fileID: String = #fileID, function: String = #function, line: Int = #line) {
+        #if DEBUG
+        print("<== \(fileID) - \(function) - LINE:\(line) - END ==>")
+        #endif
+    }
 }
 
