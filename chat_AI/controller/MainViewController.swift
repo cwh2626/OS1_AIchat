@@ -383,7 +383,7 @@ class MainViewController: UIViewController, UITextFieldDelegate {
         let userDateTime = DateFormatter()
         userDateTime.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         
-        let userParam = chatVO(role: ChatRoleType.USER, content: messageInputView.text!,time:userDateTime.string(from: Date()))
+        let userParam = Chat(role: ChatRoleType.USER, content: messageInputView.text!,time:userDateTime.string(from: Date()))
         
         let userMessage = userParam.content
         
@@ -420,7 +420,7 @@ class MainViewController: UIViewController, UITextFieldDelegate {
                 let astDateTime = DateFormatter()
                 astDateTime.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
                 
-                let astParam = chatVO(role: ChatRoleType.AST, content: _response,time:astDateTime.string(from: Date()))
+                let astParam = Chat(role: ChatRoleType.AST, content: _response,time:astDateTime.string(from: Date()))
                 
                 self.viewModel.addMessage(role: ChatRoleType.AST, content: _response) // 입력한 메시지를 AI입장의 gpt 모델에 내용 추가
                 

@@ -15,8 +15,8 @@ class GPTChatViewModel {
     
     var ownedToken = BehaviorRelay<Double>(value: 0)
         
-    let chatDAO = ChatHistoryDAO()
-    var chatDataList: [chatVO]
+    let chatDAO = ChatRepository()
+    var chatDataList: [Chat]
     var chatMaximumTokens: Int
     var chatCurrentTokens = BehaviorRelay<Int>(value: 0)
     
@@ -70,7 +70,7 @@ class GPTChatViewModel {
         messages.append(message)
     }
     
-    func insertMessageIntoDatabase(messageData: chatVO) -> Bool {
+    func insertMessageIntoDatabase(messageData: Chat) -> Bool {
         if self.chatDAO.create(param: messageData) {
             
             print("데이터 넣기 대성공")

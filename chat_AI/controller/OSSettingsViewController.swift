@@ -12,10 +12,11 @@ import RxCocoa
 /// OS1 행동 및 성격 설정 페이지
 class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
     // MARK: - Properties and Constants
+    
     private var isStartupView: Bool
     private let toolTipMessage = "우측 상단의 '+' 버튼을 눌러 OS를 커스텀하세요. 성격, 행동 등을 직접 설정할 수 있습니다.\n\n최대 5개의 설정 카드를 추가할 수 있으며, 영어로 설정하는 것이 인식률을 향상시킬 수 있습니다."
     private var cellHeights: [CGFloat] = []
-    private var sysData: [chatVO] = []
+    private var sysData: [Chat] = []
     private let cellIdentifier = "CustomCell"
     private var expandedCellIndexPath: IndexPath?
     private var viewModel = OSSettingsViewModel() // 뷰 모델 인스턴스
@@ -156,7 +157,7 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         guard self.settingCardTableView.numberOfRows(inSection: 0) < 5 else { return showAlert() }
         
         let indexPath = IndexPath(row: self.sysData.count, section: 0)
-        self.sysData.append(chatVO.init())
+        self.sysData.append(Chat.init())
         settingCardTableView.insertRows(at: [indexPath], with: .automatic)
         
         debugPrint_END()

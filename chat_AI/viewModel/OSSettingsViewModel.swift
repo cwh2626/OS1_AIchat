@@ -11,13 +11,13 @@ import RxCocoa
 
 class OSSettingsViewModel {
     
-    let settingsitems = PublishRelay<[chatVO]>()
+    let settingsitems = PublishRelay<[Chat]>()
     
-    let chatDAO = ChatHistoryDAO()
-    var originalChatSysDataList: [chatVO]
+    let chatDAO = ChatRepository()
+    var originalChatSysDataList: [Chat]
     private let disposeBag = DisposeBag()
     
-    func loadData() -> [chatVO] {
+    func loadData() -> [Chat] {
         return self.originalChatSysDataList
     }
     
@@ -31,7 +31,7 @@ class OSSettingsViewModel {
             .disposed(by: disposeBag)
     }
     
-    private func sysContentSet(newSysDataList: [chatVO]) {
+    private func sysContentSet(newSysDataList: [Chat]) {
         // 가입일은 오늘로 한다.
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"

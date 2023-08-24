@@ -1,37 +1,13 @@
 //
-//  ChatHistoryDAO.swift
+//  ChatRepository.swift
 //  chat_AI
 //
-//  Created by 조웅희 on 2023/04/14.
+//  Created by 조웅희 on 2023/08/24.
 //
 
 import FMDB
 
-enum ChatRoleType: Int {
-    case SYS = 0, AST, USER // 순서대로 시스템(0), AI(1), 사용자(2)
-    
-    // 룰을 문자열로 변환해 주는 메소드
-    func desc() -> String {
-        switch self {
-        case .SYS:
-            return "system"
-        case .AST:
-            return "assistant"
-        case .USER:
-            return "user"
-        }
-    }
-}
-
-
-struct chatVO {
-    var chatNum = 0 // 채팅 넘버
-    var role = ChatRoleType.SYS // 채팅 룰
-    var content = "" // 채팅 내용
-    var time = "" // 채팅 시간
-}
-
-class ChatHistoryDAO {
+class ChatRepository {
     
     lazy var fmdb: FMDatabase! = {
         // 번들에 내장되어있는 DB경로
@@ -62,9 +38,9 @@ class ChatHistoryDAO {
         self.fmdb.close()
     }
     
-    func getAllSysContent() -> [chatVO] {
+    func getAllSysContent() -> [Chat] {
         // 반환할 데이터를 담을 [chatVO] 타입의 객체 정의
-        var chatList = [chatVO]()
+        var chatList = [Chat]()
         
         // 1. 채팅내용을 가져올 SQL 작성 및 쿼리 실행
         do {
@@ -79,7 +55,7 @@ class ChatHistoryDAO {
             
             // 2. 결과 집합 추출
             while rs.next() {
-                var record = chatVO()
+                var record = Chat()
                 
                 record.chatNum = Int(rs.int(forColumn: "NUMBER"))
                 record.content = rs.string(forColumn: "CONTENT")!
@@ -102,9 +78,9 @@ class ChatHistoryDAO {
     /// 채팅내용가져오기
     /// - Parameter chatNM: 채팅 인덱스, default : 전체 기록 가져오기
     /// - Returns: 채팅내용리스트
-    func get(sysRole: Bool) -> [chatVO] {
+    func get(sysRole: Bool) -> [Chat] {
         // 반환할 데이터를 담을 [chatVO] 타입의 객체 정의
-        var chatList = [chatVO]()
+        var chatList = [Chat]()
         
         // 1. 채팅내용을 가져올 SQL 작성 및 쿼리 실행
         do {
@@ -122,7 +98,7 @@ class ChatHistoryDAO {
             
             // 2. 결과 집합 추출
             while rs.next() {
-                var record = chatVO()
+                var record = Chat()
                 
                 record.chatNum = Int(rs.int(forColumn: "NUMBER"))
                 record.content = rs.string(forColumn: "CONTENT")!
@@ -274,7 +250,7 @@ class ChatHistoryDAO {
     /// 채팅생성
     /// - Parameter param: 채팅내용
     /// - Returns: 생성성공여부
-    func create(param: chatVO) -> Bool {
+    func create(param: Chat) -> Bool {
         do {
             let sql = """
                 INSERT INTO CHAT_HISTORY_TB (ROLE, CONTENT, TIMESTAMP)
@@ -295,7 +271,7 @@ class ChatHistoryDAO {
         }
     }
 
-    func update(param: chatVO) -> Bool {
+    func update(param: Chat) -> Bool {
         do {
 
             let sql = """
@@ -361,4 +337,3 @@ class ChatHistoryDAO {
         }
     }
 }
-

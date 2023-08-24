@@ -70,7 +70,7 @@ class SideMenuTableViewController: UITableViewController {
 extension SideMenuTableViewController: CustomAlertDelegate {
     // CustomAlertDelegate 메서드 구현
     func handleConfirmAction() {
-        let chatDAO = ChatHistoryDAO()
+        let chatDAO = ChatRepository()
         if chatDAO.clearAllChatData() {
             let initVC = InitialSetupViewController()
 

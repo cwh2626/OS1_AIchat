@@ -15,7 +15,7 @@
 		356DBCC22A52925A00EC1F15 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356DBCC12A52925A00EC1F15 /* Environment.swift */; };
 		356DBCC62A52BBB600EC1F15 /* OpenSans-VariableFont_wdth,wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 356DBCC52A52BBB600EC1F15 /* OpenSans-VariableFont_wdth,wght.ttf */; };
 		3582D2C129E7D1D9003AB26C /* send_loading.json in Resources */ = {isa = PBXBuildFile; fileRef = 3582D2C029E7D1D9003AB26C /* send_loading.json */; };
-		3582D2C629E906D0003AB26C /* ChatHistoryDAO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3582D2C529E906D0003AB26C /* ChatHistoryDAO.swift */; };
+		3582D2C629E906D0003AB26C /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3582D2C529E906D0003AB26C /* Chat.swift */; };
 		3584B58F2A1F609C000EF521 /* CustomAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3584B58E2A1F609C000EF521 /* CustomAlertViewController.swift */; };
 		3584B5922A285A37000EF521 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3584B5912A285A37000EF521 /* UIColor+Extensions.swift */; };
 		3584B5942A287563000EF521 /* SideMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3584B5932A287563000EF521 /* SideMenuTableViewController.swift */; };
@@ -39,6 +39,7 @@
 		35DCA54229D421710020984A /* chat_AIUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA54129D421710020984A /* chat_AIUITests.swift */; };
 		35DCA54429D421710020984A /* chat_AIUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA54329D421710020984A /* chat_AIUITestsLaunchTests.swift */; };
 		35DCA55529D6C61C0020984A /* GPTChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA55429D6C61C0020984A /* GPTChatViewModel.swift */; };
+		35EC369A2A9718C1004CC9C6 /* ChatRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC36992A9718C1004CC9C6 /* ChatRepository.swift */; };
 		48CE9C57A74401C86D8631D3 /* Pods_chat_AI_chat_AIUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A61FC52F5870074967DDA53 /* Pods_chat_AI_chat_AIUITests.framework */; };
 		928B90588161C6786A249849 /* Pods_chat_AITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7D076461006CF3BEAFE4E8 /* Pods_chat_AITests.framework */; };
 		FF1F12AA1B9B21DD7980DEC8 /* Pods_chat_AI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7575CC022EDD2BCA4E6947FA /* Pods_chat_AI.framework */; };
@@ -77,7 +78,7 @@
 		356E7A8C2A63BE0400EB7ABD /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Main.strings; sourceTree = "<group>"; };
 		356E7A8D2A63BE0500EB7ABD /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		3582D2C029E7D1D9003AB26C /* send_loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = send_loading.json; sourceTree = "<group>"; };
-		3582D2C529E906D0003AB26C /* ChatHistoryDAO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHistoryDAO.swift; sourceTree = "<group>"; };
+		3582D2C529E906D0003AB26C /* Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chat.swift; sourceTree = "<group>"; };
 		3584B58E2A1F609C000EF521 /* CustomAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertViewController.swift; sourceTree = "<group>"; };
 		3584B5912A285A37000EF521 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		3584B5932A287563000EF521 /* SideMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuTableViewController.swift; sourceTree = "<group>"; };
@@ -107,6 +108,7 @@
 		35DCA54129D421710020984A /* chat_AIUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chat_AIUITests.swift; sourceTree = "<group>"; };
 		35DCA54329D421710020984A /* chat_AIUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chat_AIUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		35DCA55429D6C61C0020984A /* GPTChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTChatViewModel.swift; sourceTree = "<group>"; };
+		35EC36992A9718C1004CC9C6 /* ChatRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRepository.swift; sourceTree = "<group>"; };
 		35F5071A2A56EB1B0030FAA4 /* FMDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FMDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		56E505AEBFA3C7DD18C9C74B /* Pods-chat_AITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-chat_AITests.debug.xcconfig"; path = "Target Support Files/Pods-chat_AITests/Pods-chat_AITests.debug.xcconfig"; sourceTree = "<group>"; };
 		5A61FC52F5870074967DDA53 /* Pods_chat_AI_chat_AIUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_chat_AI_chat_AIUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -182,7 +184,7 @@
 		3582D2C429E904E6003AB26C /* model */ = {
 			isa = PBXGroup;
 			children = (
-				3582D2C529E906D0003AB26C /* ChatHistoryDAO.swift */,
+				3582D2C529E906D0003AB26C /* Chat.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -237,6 +239,7 @@
 				3584B5902A2859C4000EF521 /* commonExtensions */,
 				3582D2C429E904E6003AB26C /* model */,
 				35DCA55329D6C5BA0020984A /* viewModel */,
+				35EC36982A97189A004CC9C6 /* repository */,
 				3582D2BF29E7D1A1003AB26C /* resource */,
 				356DBCC12A52925A00EC1F15 /* Environment.swift */,
 				35DCA52029D4216E0020984A /* AppDelegate.swift */,
@@ -286,6 +289,14 @@
 				35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */,
 			);
 			path = viewModel;
+			sourceTree = "<group>";
+		};
+		35EC36982A97189A004CC9C6 /* repository */ = {
+			isa = PBXGroup;
+			children = (
+				35EC36992A9718C1004CC9C6 /* ChatRepository.swift */,
+			);
+			path = repository;
 			sourceTree = "<group>";
 		};
 		4330D45F8E036641C0E45A95 /* Pods */ = {
@@ -570,7 +581,8 @@
 				352332152A08C38A003294B1 /* OSSettingsViewController.swift in Sources */,
 				35DCA52529D4216E0020984A /* MainViewController.swift in Sources */,
 				3584B5922A285A37000EF521 /* UIColor+Extensions.swift in Sources */,
-				3582D2C629E906D0003AB26C /* ChatHistoryDAO.swift in Sources */,
+				35EC369A2A9718C1004CC9C6 /* ChatRepository.swift in Sources */,
+				3582D2C629E906D0003AB26C /* Chat.swift in Sources */,
 				35B3CB7F2A304E95007E7D6B /* Notification+Extensions.swift in Sources */,
 				35DCA52129D4216E0020984A /* AppDelegate.swift in Sources */,
 				35CBFAB22A1CCAA10053AEDE /* TooltipViewController.swift in Sources */,
