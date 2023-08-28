@@ -17,7 +17,9 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     private var rewardedAd: GADRewardedAd?
     private let viewModel = GPTChatViewModel()
     private var balanceCardView = BalanceCardView()
-    private var sideMenuTableViewController = SideMenuTableViewController()
+    
+    // 사이드 메뉴 뷰 컨트롤러 인스턴스 생성
+    private var sideMenuVC: SideMenuViewController!
     
     private var isAnimationItemVisible = false // 메시지 응답 로딩애니메이션 토글
     private var isRewardedAdLoaded = false
@@ -250,12 +252,14 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc func handleOverlayTap(_ gesture: UITapGestureRecognizer) {
-       closeSideMenu()
+//       closeSideMenu()
+//        self.sideMenuVC.closeSideMenu()
     }
     
     @objc func buttonTapped() {
         view.endEditing(true)
-        openSideMenu()
+        self.sideMenuVC.openSideMenu()
+//        openSideMenu()
     }
     
     @objc func handleDBChange(notification: NSNotification) {
@@ -582,36 +586,36 @@ class MainViewController: UIViewController, UITextFieldDelegate {
 
         sideMenuView.backgroundColor = UIColor.secondaryBackgroundColor
         
-        // MyTableViewController 인스턴스 생성
-        sideMenuTableViewController = SideMenuTableViewController()
+        // SideMenuViewController 인스턴스 생성
+        self.sideMenuVC = SideMenuViewController()
         
         // 여기서 버튼에 애니메이션 추가
         balanceCardView.chargeButton.layer.add(floatingAnimation, forKey: "buttonFloatingAnimation")
         balanceCardView.translatesAutoresizingMaskIntoConstraints = false
         // 컨트롤안에 컨트롤을 추가할시에는 부모자식의 관계를 확실히해야 부모가 종료될때(예:viewDidDisappear) 자식도 같이 종료해야하는데 자식이 이를 모르기에
         // 종료가 안되고 메모리누수가 될수가있다 그렇기에 라이플사이클을 서로 공유해야 메모리누수를 방지 할 수 있다.
-        addChild(sideMenuTableViewController)
-        sideMenuView.addSubview(balanceCardView)
-        sideMenuView.addSubview(sideMenuTableViewController.view)
-        view.addSubview(sideMenuView)
+        addChild(sideMenuVC)
+//        sideMenuView.addSubview(balanceCardView)
+//        sideMenuView.addSubview(sideMenuVC.view)
+        view.addSubview(sideMenuVC.view)
         
         
-        sideMenuTableViewController.view.translatesAutoresizingMaskIntoConstraints = false
+//        sideMenuTableViewController.view.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            balanceCardView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor,constant: 10),
-            balanceCardView.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor, constant: -10),
-            balanceCardView.topAnchor.constraint(equalTo: sideMenuView.safeAreaLayoutGuide.topAnchor),
-            
-            sideMenuTableViewController.view.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
-            sideMenuTableViewController.view.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor),
-            sideMenuTableViewController.view.topAnchor.constraint(equalTo: balanceCardView.bottomAnchor),
-            sideMenuTableViewController.view.bottomAnchor.constraint(equalTo: sideMenuView.safeAreaLayoutGuide.bottomAnchor),
-        ])
+//        NSLayoutConstraint.activate([
+//            balanceCardView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor,constant: 10),
+//            balanceCardView.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor, constant: -10),
+//            balanceCardView.topAnchor.constraint(equalTo: sideMenuView.safeAreaLayoutGuide.topAnchor),
+//
+//            sideMenuTableViewController.view.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
+//            sideMenuTableViewController.view.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor),
+//            sideMenuTableViewController.view.topAnchor.constraint(equalTo: balanceCardView.bottomAnchor),
+//            sideMenuTableViewController.view.bottomAnchor.constraint(equalTo: sideMenuView.safeAreaLayoutGuide.bottomAnchor),
+//        ])
         
         // 컨테이너 뷰 컨트롤러로 추가
         // .didMove(toParent: self): 이건 반대로 자식에게 너의 부모가 누구누구이며 부모뷰에 추가되거나 해제되었을때 유용하게 부모뷰의 기능에 간섭할수있는 기능입니다.
-        sideMenuTableViewController.didMove(toParent: self)
+        sideMenuVC.didMove(toParent: self)
     }
 
     func setupOverlayView() {

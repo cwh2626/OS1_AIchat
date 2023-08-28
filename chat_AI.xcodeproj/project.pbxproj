@@ -39,6 +39,8 @@
 		35DCA54429D421710020984A /* chat_AIUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA54329D421710020984A /* chat_AIUITestsLaunchTests.swift */; };
 		35DCA55529D6C61C0020984A /* GPTChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DCA55429D6C61C0020984A /* GPTChatViewModel.swift */; };
 		35EC369A2A9718C1004CC9C6 /* ChatRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC36992A9718C1004CC9C6 /* ChatRepository.swift */; };
+		35EC369C2A9C714B004CC9C6 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC369B2A9C714B004CC9C6 /* SideMenuViewController.swift */; };
+		35EC369E2A9C9A61004CC9C6 /* SideMenuViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC369D2A9C9A60004CC9C6 /* SideMenuViewModel.swift */; };
 		48CE9C57A74401C86D8631D3 /* Pods_chat_AI_chat_AIUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A61FC52F5870074967DDA53 /* Pods_chat_AI_chat_AIUITests.framework */; };
 		928B90588161C6786A249849 /* Pods_chat_AITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7D076461006CF3BEAFE4E8 /* Pods_chat_AITests.framework */; };
 		FF1F12AA1B9B21DD7980DEC8 /* Pods_chat_AI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7575CC022EDD2BCA4E6947FA /* Pods_chat_AI.framework */; };
@@ -107,6 +109,8 @@
 		35DCA54329D421710020984A /* chat_AIUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chat_AIUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		35DCA55429D6C61C0020984A /* GPTChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTChatViewModel.swift; sourceTree = "<group>"; };
 		35EC36992A9718C1004CC9C6 /* ChatRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRepository.swift; sourceTree = "<group>"; };
+		35EC369B2A9C714B004CC9C6 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
+		35EC369D2A9C9A60004CC9C6 /* SideMenuViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewModel.swift; sourceTree = "<group>"; };
 		35F5071A2A56EB1B0030FAA4 /* FMDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FMDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		56E505AEBFA3C7DD18C9C74B /* Pods-chat_AITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-chat_AITests.debug.xcconfig"; path = "Target Support Files/Pods-chat_AITests/Pods-chat_AITests.debug.xcconfig"; sourceTree = "<group>"; };
 		5A61FC52F5870074967DDA53 /* Pods_chat_AI_chat_AIUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_chat_AI_chat_AIUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -164,6 +168,7 @@
 				35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */,
 				3584B58E2A1F609C000EF521 /* CustomAlertViewController.swift */,
 				3584B5932A287563000EF521 /* SideMenuTableViewController.swift */,
+				35EC369B2A9C714B004CC9C6 /* SideMenuViewController.swift */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -284,6 +289,7 @@
 			children = (
 				35DCA55429D6C61C0020984A /* GPTChatViewModel.swift */,
 				35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */,
+				35EC369D2A9C9A60004CC9C6 /* SideMenuViewModel.swift */,
 			);
 			path = viewModel;
 			sourceTree = "<group>";
@@ -584,9 +590,11 @@
 				35CBFAB22A1CCAA10053AEDE /* TooltipViewController.swift in Sources */,
 				3521F73B29DEC859009E51C2 /* PaddedLabel.swift in Sources */,
 				35CE52942A00C82300158C85 /* CustomTableViewCell.swift in Sources */,
+				35EC369E2A9C9A61004CC9C6 /* SideMenuViewModel.swift in Sources */,
 				35DCA55529D6C61C0020984A /* GPTChatViewModel.swift in Sources */,
 				356DBCC22A52925A00EC1F15 /* Environment.swift in Sources */,
 				35B3CB852A39826F007E7D6B /* BalanceCardView.swift in Sources */,
+				35EC369C2A9C714B004CC9C6 /* SideMenuViewController.swift in Sources */,
 				35B3CB872A4043DE007E7D6B /* BalloonView.swift in Sources */,
 				35DCA52329D4216E0020984A /* SceneDelegate.swift in Sources */,
 				3584B5942A287563000EF521 /* SideMenuTableViewController.swift in Sources */,
