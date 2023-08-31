@@ -14,15 +14,12 @@ import RxCocoa
 /// 메인 채팅방
 class MainViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Properties
-    private var rewardedAd: GADRewardedAd?
+
     private let viewModel = GPTChatViewModel()
-    private var balanceCardView = BalanceCardView()
     
     // 사이드 메뉴 뷰 컨트롤러 인스턴스 생성
     private var sideMenuVC: SideMenuViewController!
-    
     private var isAnimationItemVisible = false // 메시지 응답 로딩애니메이션 토글
-    private var isRewardedAdLoaded = false
     private var containerViewBottomConstraint: NSLayoutConstraint!
     
     // 전송버튼과 로딩뷰의 전환을 위해 전역변수로 설정
@@ -31,25 +28,11 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     private let sideMenuWidth: CGFloat = UIScreen.main.bounds.width * 0.8 > 340 ? 340 : UIScreen.main.bounds.width * 0.8
     
     private var shouldProcessNotifications = true
-    private let AdMobRewardADId = Environment.AdMobRewardADId
     
     // Observable의 메모리 누수 방지를 위한 자동 구독해지 기능이라고 생각하면 편할듯
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
-    private var sideMenuView: UIView!
-    private var overlayView: UIView!
-    
-    private let floatingAnimation: CABasicAnimation = {
-        let animation = CABasicAnimation(keyPath: "transform.translation.y")
-        animation.duration = 1.0
-        animation.repeatCount = Float.infinity
-        animation.autoreverses = true
-        animation.fromValue = -1.5
-        animation.toValue = 1.5
-        return animation
-    }()
-    
     private let bannerView: GADBannerView = {
         let banner = GADBannerView()
         banner.adUnitID = Environment.AdMobBannerADId // 실제로는 여기에 AdMob에서 받은 배너 광고 단위 ID를 넣어야 합니다.
@@ -161,10 +144,8 @@ class MainViewController: UIViewController, UITextFieldDelegate {
 
         setupUI()
         setupSideMenu()
-        setupOverlayView()
         addGestureRecognizers()
         setAllBubbleLabel()
-        loadRewardedAd()
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         bindViewModel()
@@ -200,9 +181,6 @@ class MainViewController: UIViewController, UITextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(handleChildViewControllerDidAppear), name: .childViewControllerDidAppear, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleChildViewControllerDidDisappear), name: .childViewControllerDidDisappear, object: nil)
         
-        // 앱이 활성화될 때 애니메이션을 다시 시작하기 위한 알림 구독 (앱이 백그라운드에서 포그라운드로 전환될 때마다 발생합니다.)
-        NotificationCenter.default.addObserver(self, selector: #selector(restartAnimation), name: UIApplication.willEnterForegroundNotification, object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleDBChange), name: .didChangeDB, object: nil)
         Environment.debugPrint_END()
     }
@@ -228,38 +206,9 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Action Methods
     
-    @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
-        let translation = recognizer.translation(in: view)
-
-        switch recognizer.state {
-        case .changed:
-            if translation.x > 0 {
-                recognizer.view!.frame.origin.x = (UIScreen.main.bounds.width - sideMenuWidth) + translation.x
-                
-            } else {
-                
-                recognizer.view!.frame.origin.x = UIScreen.main.bounds.width - sideMenuWidth
-            }
-        case .ended:
-            if translation.x > 0 {
-                print("closeSideMenu #######")
-                closeSideMenu()
-            }
-            
-        default:
-            break
-        }
-    }
-    
-    @objc func handleOverlayTap(_ gesture: UITapGestureRecognizer) {
-//       closeSideMenu()
-//        self.sideMenuVC.closeSideMenu()
-    }
-    
     @objc func buttonTapped() {
         view.endEditing(true)
         self.sideMenuVC.openSideMenu()
-//        openSideMenu()
     }
     
     @objc func handleDBChange(notification: NSNotification) {
@@ -323,11 +272,6 @@ class MainViewController: UIViewController, UITextFieldDelegate {
             // 사용하지 않을시에 툴바가 애니메이션없이 드득 하면서 올라가진다 이건 추후에 더 공부해보자
             self.view.layoutIfNeeded()
         }
-    }
-    
-    @objc func restartAnimation() {
-        // 애니메이션을 다시 시작하는 코드
-        balanceCardView.chargeButton.layer.add(floatingAnimation, forKey: "buttonFloatingAnimation")
     }
     
 //    @objc func sendButtonTapped(_ sender: UIButton) {
@@ -501,7 +445,6 @@ class MainViewController: UIViewController, UITextFieldDelegate {
         // sendButton 터치시 sendButtonTapped 메서드 호출
         sendButton.addTarget(self, action: #selector(sendButtonTapped(_:)), for: .touchUpInside)
         
-        balanceCardView.delegate = self
         
         // messageInputView의 text유무에 따른 sendbutton의 활성화 유무 처리
         messageInputView.delegate = self // 이거 uibuttom은 안하는데 왜하는지 추후에 gpt로 물어보자
@@ -582,47 +525,14 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     }
     
     func setupSideMenu() {
-        sideMenuView = UIView(frame: CGRect(x: view.frame.width, y: 0, width: sideMenuWidth, height: view.frame.height))
-
-        sideMenuView.backgroundColor = UIColor.secondaryBackgroundColor
-        
         // SideMenuViewController 인스턴스 생성
         self.sideMenuVC = SideMenuViewController()
         
-        // 여기서 버튼에 애니메이션 추가
-        balanceCardView.chargeButton.layer.add(floatingAnimation, forKey: "buttonFloatingAnimation")
-        balanceCardView.translatesAutoresizingMaskIntoConstraints = false
         // 컨트롤안에 컨트롤을 추가할시에는 부모자식의 관계를 확실히해야 부모가 종료될때(예:viewDidDisappear) 자식도 같이 종료해야하는데 자식이 이를 모르기에
         // 종료가 안되고 메모리누수가 될수가있다 그렇기에 라이플사이클을 서로 공유해야 메모리누수를 방지 할 수 있다.
         addChild(sideMenuVC)
-//        sideMenuView.addSubview(balanceCardView)
-//        sideMenuView.addSubview(sideMenuVC.view)
         view.addSubview(sideMenuVC.view)
-        
-        
-//        sideMenuTableViewController.view.translatesAutoresizingMaskIntoConstraints = false
-        
-//        NSLayoutConstraint.activate([
-//            balanceCardView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor,constant: 10),
-//            balanceCardView.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor, constant: -10),
-//            balanceCardView.topAnchor.constraint(equalTo: sideMenuView.safeAreaLayoutGuide.topAnchor),
-//
-//            sideMenuTableViewController.view.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
-//            sideMenuTableViewController.view.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor),
-//            sideMenuTableViewController.view.topAnchor.constraint(equalTo: balanceCardView.bottomAnchor),
-//            sideMenuTableViewController.view.bottomAnchor.constraint(equalTo: sideMenuView.safeAreaLayoutGuide.bottomAnchor),
-//        ])
-        
-        // 컨테이너 뷰 컨트롤러로 추가
-        // .didMove(toParent: self): 이건 반대로 자식에게 너의 부모가 누구누구이며 부모뷰에 추가되거나 해제되었을때 유용하게 부모뷰의 기능에 간섭할수있는 기능입니다.
         sideMenuVC.didMove(toParent: self)
-    }
-
-    func setupOverlayView() {
-       overlayView = UIView(frame: view.bounds)
-       overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-       overlayView.alpha = 0
-       view.insertSubview(overlayView, belowSubview: sideMenuView)
     }
     
     
@@ -631,35 +541,7 @@ class MainViewController: UIViewController, UITextFieldDelegate {
         // ownedToken 과 self.tokenLabel.text를 바인딩하는 코드
         // .bind : viewModel.displayText의 값이 변경될떄 마다 self.resultLabel.rx.text도 같은 값으로 변경됨 (rx란 UIkit컴포넌트에 Observable 구조체와 연결하게 해주는 역할)
         // .disposed: 바인드후 Disposable을 방출하는데 이걸 disposeBag 에 담아주는 역할 _ 메모리 자동 해지를 위해 (자동구독해지)
-        viewModel.ownedToken
-            .map{self.formatNumber($0)}
-            .bind(to: self.balanceCardView.tokenLabel.rx.text)
-            .disposed(by: disposeBag)
         
-        viewModel.chatCurrentTokens
-            .map{"\($0)/\(self.viewModel.chatMaximumTokens)"}
-            .bind(to: self.balanceCardView.limitValueLabel.rx.text)
-            .disposed(by: disposeBag)
-        
-        viewModel.chatCurrentTokens
-            .map { return Float($0) / Float(self.viewModel.chatMaximumTokens) }
-            .bind(to: self.balanceCardView.limitProgressBar.rx.progress)
-            .disposed(by: disposeBag)
-        
-    }
-    
-    func formatNumber(_ num: Double) -> String {
-        let absoluteNum = abs(num) // 절대값 변환
-        let thousand = absoluteNum / 1000.0
-        let million = absoluteNum / 1000000.0
-        
-        if million >= 1.0 {
-            return (num < 0 ? "-" : "") + (million.truncatingRemainder(dividingBy: 1.0) == 0 ? String(format: "%.0fM", million) : "\(million)M")
-        } else if thousand >= 1.0 {
-            return (num < 0 ? "-" : "") + (thousand.truncatingRemainder(dividingBy: 1.0) == 0 ? String(format: "%.0fK", thousand) : "\(thousand)K")
-        } else {
-            return "\(Int(num))"
-        }
     }
     
     private func setAllBubbleLabel() {
@@ -727,12 +609,6 @@ class MainViewController: UIViewController, UITextFieldDelegate {
         // scrollView 영역 터치시 dismissKeyboard 메서드 호출
         let scrollViewTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard)) //
         chatScrollView.addGestureRecognizer(scrollViewTapGesture)
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleOverlayTap(_:)))
-        overlayView.addGestureRecognizer(tapGesture)
-
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
-        sideMenuView.addGestureRecognizer(panGestureRecognizer)
     }
 
   
@@ -742,21 +618,6 @@ class MainViewController: UIViewController, UITextFieldDelegate {
 //           closeSideMenu()
 //       }
 //    }
-
-    func openSideMenu() {
-       UIView.animate(withDuration: 0.3) {
-           self.sideMenuView.frame.origin.x = self.view.frame.width - self.sideMenuWidth
-           self.overlayView.alpha = 1
-       }
-    }
-
-    func closeSideMenu() {
-       UIView.animate(withDuration: 0.3) {
-           self.sideMenuView.frame.origin.x = self.view.frame.width
-           self.overlayView.alpha = 0
-       }
-    }
-    
     
 
     // 하단툴바의 전송버튼, 로딩뷰 전환 토글함수
@@ -822,96 +683,5 @@ extension MainViewController: CustomAlertDelegate {
         )
 
         present(customAlertVC, animated: true, completion: nil)
-    }
-}
-
-extension MainViewController: GADFullScreenContentDelegate, BalanceCardViewDelegate {
-    func adButtonDidTap() {
-        // 광고 연동전 스크린샷
-//        guard self.viewModel.ownedToken.value + 4000 < 20000 else { return self.showAlert(alertText: "허용된 토큰 보유 한도를 초과했습니다.") }
-//        var isDBUpdateSuccessful: Bool = false
-//        self.viewModel.chatDAO.fmdb.beginTransaction()
-//
-//        defer {
-//            if !isDBUpdateSuccessful {
-//                self.viewModel.chatDAO.fmdb.rollback()
-//            }
-//        }
-//        // TODO: 사용자에게 보상 제공.
-//        if self.viewModel.adjustOwnedToken(tokens: 4000) {
-//            self.viewModel.chatDAO.fmdb.commit()
-//            isDBUpdateSuccessful = true
-//        } else {
-//            return
-//        }
-        guard self.viewModel.ownedToken.value + 4000 < 99999999 else { return self.showAlert(alertText: "허용된 토큰 보유 한도를 초과했습니다.") }
-        guard isRewardedAdLoaded else { return self.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.") }
-        showAd()
-        
-    }
-    
-    func loadRewardedAd() {
-        let request = GADRequest()
-        GADRewardedAd.load(withAdUnitID:AdMobRewardADId,
-                           request: request,
-                           completionHandler: { [self] ad, error in
-            if let error = error {
-                print("보상형 광고 로딩 실패: \(error.localizedDescription)")
-                return
-            }
-            rewardedAd = ad
-            rewardedAd?.fullScreenContentDelegate = self
-            isRewardedAdLoaded = true
-            print("보상형 광고 로딩 완료.")
-        })
-    }
-    
-    func showAd() {
-        if let ad = rewardedAd {
-            ad.present(fromRootViewController: self, userDidEarnRewardHandler: {
-                let reward = ad.adReward
-                print("보상 받음. 화폐: \(reward.type), 수량: \(reward.amount.doubleValue)")
-                
-                var isDBUpdateSuccessful: Bool = false
-                self.viewModel.chatDAO.fmdb.beginTransaction()
-                    
-                defer {
-                    if !isDBUpdateSuccessful {
-                        self.viewModel.chatDAO.fmdb.rollback()
-                    }
-                }
-                // TODO: 사용자에게 보상 제공.
-                if self.viewModel.adjustOwnedToken(tokens: 4000) {
-                    self.viewModel.chatDAO.fmdb.commit()
-                    isDBUpdateSuccessful = true
-                } else {
-                    return
-                }
-            })
-        } else {
-            self.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.")
-            print("광고 준비가 되지 않았습니다.")
-        }
-    }
-    
-    // MARK: GADFullScreenContentDelegate
-
-    func adDidRecordImpression(_ ad: GADFullScreenPresentingAd) {
-        isRewardedAdLoaded = false
-        print("광고가 정상적으로 로드되었습니다.")
-    }
-
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-        print("광고가 닫혔습니다. 새로운 광고를 로드합니다.")
-        loadRewardedAd() // 광고가 닫힌 후 새로운 광고를 로드합니다.
-        restartAnimation()
-    }
-    
-    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
-        print("광고 표시에 실패했습니다: \(error.localizedDescription)")
-    }
-
-    func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-        print("광고가 풀 스크린으로 표시될 예정입니다.")
     }
 }

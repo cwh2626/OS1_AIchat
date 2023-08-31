@@ -6,6 +6,7 @@
 //
 
 import FMDB
+import RxSwift
 
 class ChatRepository {
     
@@ -226,25 +227,27 @@ class ChatRepository {
         return TokenLimit
     }
     
-    func updateOwnedToken(ownedTokens: Double, updateTime: String) -> Bool {
-        do {
-
-            let sql = """
-                UPDATE USER_TOKEN_TB
-                SET OWNED_TOKENS = ? ,TIMESTAMP = ?
-                WHERE NUMBER = 1
-            """
-            var params = [Any]()
-            params.append(ownedTokens)
-            params.append(updateTime)
-//            print(#function, "룰 : \(param.role) - > \(params)")
-            try self.fmdb.executeUpdate(sql, values: params)
-            
-            return true
-        } catch let error as NSError {
-            print("Insert Error: \(error.localizedDescription)")
-            return false
-        }
+    func updateOwnedToken(ownedTokens: Double, updateTime: String) -> Single<Bool> {
+        return Single.create { single in
+           do {
+               let sql = """
+                   UPDATE USER_TOKEN_TB
+                   SET OWNED_TOKENS = ? ,TIMESTAMP = ?
+                   WHERE NUMBE
+               """
+               var params = [Any]()
+               params.append(ownedTokens)
+               params.append(updateTime)
+               try self.fmdb.executeUpdate(sql, values: params)
+               
+               single(.success(true))
+           } catch let error {
+               print("Insert Error: \(error.localizedDescription)")
+               single(.failure(error))
+           }
+           
+           return Disposables.create()
+       }
     }
     
     /// 채팅생성

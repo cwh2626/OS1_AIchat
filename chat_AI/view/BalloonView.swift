@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// 말풍선 커스텀뷰
 class BalloonView: UIView {
 
     var message: String? {

@@ -8,18 +8,26 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import GoogleMobileAds
 
+/// 사이드메뉴 페이지
 class SideMenuViewController: UIViewController {
     // MARK: - Properties
+    private let AdMobRewardADId = Environment.AdMobRewardADId
+    private var rewardedAd: GADRewardedAd?
+    private var isRewardedAdLoaded = false
     private let menuItems = ["Settings", "Exit"]
     private let sideMenuWidth: CGFloat = UIScreen.main.bounds.width * 0.8 > 340 ? 340 : UIScreen.main.bounds.width * 0.8
-    private var padding = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
+    private let padding = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
     private let viewModel = SideMenuViewModel()
+    private var errorToDisplay: Error?
+    
     // Observable의 메모리 누수 방지를 위한 자동 구독해지 기능이라고 생각하면 편할듯
     private let disposeBag = DisposeBag()
     
+    
     // MARK: - UI Components
-    private var balanceCardView = BalanceCardView()
+    private let balanceCardView = BalanceCardView()
         
     // 실제로 표시될 메뉴 뷰
     private let menuContainerView: UIView = {
@@ -36,7 +44,7 @@ class SideMenuViewController: UIViewController {
         return view
     }()
     
-    private var menuTableView: UITableView = {
+    private let menuTableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
@@ -46,13 +54,21 @@ class SideMenuViewController: UIViewController {
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
+        Environment.debugPrint_START()
+        
         super.viewDidLoad()
+        loadRewardedAd()
         setupUI()
         bindViewModel()
+        
+        Environment.debugPrint_END()
     }
     
+    // MARK: - Interface Setup
     // UI초기화 메서드
     private func setupUI() {
+        Environment.debugPrint_START()
+        
         self.view.backgroundColor = UIColor.secondaryBackgroundColor
         self.view.alpha = 0
         self.view.backgroundColor = .clear
@@ -66,7 +82,6 @@ class SideMenuViewController: UIViewController {
         self.menuTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
         // 토큰카드뷰 설정
-        self.balanceCardView.delegate = self
         self.balanceCardView.translatesAutoresizingMaskIntoConstraints = false
         
         // 사이드메뉴컨테이너뷰 설정
@@ -95,30 +110,56 @@ class SideMenuViewController: UIViewController {
             self.menuTableView.topAnchor.constraint(equalTo: self.balanceCardView.bottomAnchor),
             self.menuTableView.bottomAnchor.constraint(equalTo: self.menuContainerView.safeAreaLayoutGuide.bottomAnchor),
         ])
+        
+        Environment.debugPrint_END()
     }
     
-    func bindViewModel() {
-        // ownedToken 과 self.tokenLabel.text를 바인딩하는 코드
-        // .bind : viewModel.displayText의 값이 변경될떄 마다 self.resultLabel.rx.text도 같은 값으로 변경됨 (rx란 UIkit컴포넌트에 Observable 구조체와 연결하게 해주는 역할)
-        // .disposed: 바인드후 Disposable을 방출하는데 이걸 disposeBag 에 담아주는 역할 _ 메모리 자동 해지를 위해 (자동구독해지)
-        viewModel.formattedTokenValue
+    // MARK: - ViewModel Binding
+    private func bindViewModel() {
+        Environment.debugPrint_START()
+        
+        viewModel.formattedOwnedToken
             .bind(to: self.balanceCardView.tokenLabel.rx.text)
             .disposed(by: disposeBag)
         
-//        viewModel.chatCurrentTokens
-//            .map{"\($0)/\(self.viewModel.chatMaximumTokens)"}
-//            .bind(to: self.balanceCardView.limitValueLabel.rx.text)
-//            .disposed(by: disposeBag)
-//
-//        viewModel.chatCurrentTokens
-//            .map { return Float($0) / Float(self.viewModel.chatMaximumTokens) }
-//            .bind(to: self.balanceCardView.limitProgressBar.rx.progress)
-//            .disposed(by: disposeBag)
+        viewModel.formattedUsedTokenForLimitValueLabel
+            .bind(to: self.balanceCardView.limitValueLabel.rx.text)
+            .disposed(by: disposeBag)
+
+        viewModel.formattedUsedTokenForLimitProgressBar
+            .bind(to: self.balanceCardView.limitProgressBar.rx.progress)
+            .disposed(by: disposeBag)
         
+        self.balanceCardView.chargeButton.rx.tap
+            .withLatestFrom(viewModel.isExceedingLimit) // withLatestFrom : 최신값 호출
+            .subscribe(onNext: { [weak self] isExceeding in // onNext : 'withLatestFrom' 으로부터 받아온 최신값 구독
+                guard !isExceeding else {
+                    self?.showAlert(alertText: "허용된 토큰 보유 한도를 초과했습니다.")
+                    return
+                }
+                guard self!.isRewardedAdLoaded else {
+                    self?.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.")
+                    return
+                }
+                
+                self?.showAd()
+            })
+            .disposed(by: disposeBag)
+        
+        // 에러 처리 바인딩
+        viewModel.error
+            .subscribe(onNext: { [weak self] error in
+                self?.errorToDisplay = error
+            })
+            .disposed(by: disposeBag)
+        
+        Environment.debugPrint_END()
     }
     
     // MARK: - Action Methods
     @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
+        Environment.debugPrint_START()
+        
         let translation = recognizer.translation(in: view)
 
         switch recognizer.state {
@@ -138,24 +179,36 @@ class SideMenuViewController: UIViewController {
         default:
             break
         }
+        
+        Environment.debugPrint_END()
     }
     
     @objc func handleOverlayTap(_ gesture: UITapGestureRecognizer) {
+        Environment.debugPrint_START()
+        
         self.closeSideMenu()
+        
+        Environment.debugPrint_END()
     }
     
     // MARK: - Utility Methods
-    
     func openSideMenu() {
+        Environment.debugPrint_START()
+        
+        viewModel.fetchTokenInfo(isCalledFromSideMenuButton: true)
+        
         self.view.alpha = 1
         
         UIView.animate(withDuration: 0.3) {
            self.menuContainerView.frame.origin.x = self.view.frame.width - self.sideMenuWidth
            self.overlayView.alpha = 1
         }
+        
+        Environment.debugPrint_END()
     }
     
     private func closeSideMenu() {
+        Environment.debugPrint_START()
         
         UIView.animate(withDuration: 0.3, animations: {
             self.menuContainerView.frame.origin.x = self.view.frame.width
@@ -163,11 +216,48 @@ class SideMenuViewController: UIViewController {
         },completion: { _ in
             self.view.alpha = 0
         })
+        
+        Environment.debugPrint_END()
+    }
+    
+    private func loadRewardedAd() {
+        Environment.debugPrint_START()
+        
+        let request = GADRequest()
+        GADRewardedAd.load(withAdUnitID:AdMobRewardADId,
+                           request: request,
+                           completionHandler: { [self] ad, error in
+            if let error = error {
+                print("보상형 광고 로딩 실패: \(error.localizedDescription)")
+                return
+            }
+            rewardedAd = ad
+            rewardedAd?.fullScreenContentDelegate = self
+            isRewardedAdLoaded = true
+        })
+        
+        Environment.debugPrint_END()
+    }
+    
+    private func showAd() {
+        Environment.debugPrint_START()
+        
+        if let ad = rewardedAd {
+            ad.present(fromRootViewController: self, userDidEarnRewardHandler: {
+                let reward = ad.adReward
+                
+                self.viewModel.addToken(tokens: reward.amount.doubleValue)
+            })
+        } else {
+            self.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.")
+        }
+        
+        Environment.debugPrint_END()
     }
 }
 
-
 // MARK: - Extensions
+// MARK: - UITableViewDataSource,UITableViewDelegate Methods
 extension SideMenuViewController: UITableViewDataSource, UITableViewDelegate {
     
     // 섹션당 행의 수
@@ -177,6 +267,8 @@ extension SideMenuViewController: UITableViewDataSource, UITableViewDelegate {
     
     // 셀 설정
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        Environment.debugPrint_START()
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         // 이미지 설정
         cell.backgroundColor = UIColor.secondaryBackgroundColor
@@ -189,11 +281,14 @@ extension SideMenuViewController: UITableViewDataSource, UITableViewDelegate {
         cell.textLabel?.text = self.menuItems[indexPath.row]
         cell.textLabel?.textColor = UIColor.primaryBackgroundColor
         
+        Environment.debugPrint_END()
         return cell
     }
     
     // 셀 선택 시
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        Environment.debugPrint_START()
+        
         tableView.deselectRow(at: indexPath, animated: true)
         
         // 선택한 셀에 따라 다른 뷰 컨트롤러를 생성합니다.
@@ -210,34 +305,73 @@ extension SideMenuViewController: UITableViewDataSource, UITableViewDelegate {
             self.showAlert()
         default:
             print("Invalid row selected")
+            Environment.debugPrint_END()
             return
         }
         
+        Environment.debugPrint_END()
     }
 }
-
-extension SideMenuViewController: BalanceCardViewDelegate {
-    func adButtonDidTap() {
-//        guard self.viewModel.ownedToken.value + 4000 < 99999999 else { return self.showAlert(alertText: "허용된 토큰 보유 한도를 초과했습니다.") }
-//        guard isRewardedAdLoaded else { return self.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.") }
-//        showAd()
+// MARK: - GADFullScreenContentDelegate Methods
+extension SideMenuViewController: GADFullScreenContentDelegate {
+    // 정상적으로 광고가 로드되었을 경우
+    func adDidRecordImpression(_ ad: GADFullScreenPresentingAd) {
+        Environment.debugPrint_START()
         
+        isRewardedAdLoaded = false
+        
+        Environment.debugPrint_END()
+    }
+
+    // 광고가 닫힌 후
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        Environment.debugPrint_START()
+        
+        if let error = self.errorToDisplay {
+            print(error)
+            self.showAlert(alertText: "알 수 없는 데이터베이스 에러가 발생했습니다.")
+            self.errorToDisplay = nil
+        }
+        
+        // 광고가 닫힌 후 새로운 광고를 로드합니다.
+        loadRewardedAd()
+        
+        Environment.debugPrint_END()
+    }
+    
+    // 광고 표시에 실패했을 겨우
+    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        Environment.debugPrint_START()
+        
+        print("광고 표시에 실패했습니다: \(error.localizedDescription)")
+        
+        Environment.debugPrint_END()
+    }
+
+    // 광고 표시하기 전
+    func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        Environment.debugPrint_START()
+        
+        print("광고가 풀 스크린으로 표시될 예정입니다.")
+        
+        Environment.debugPrint_END()
     }
 }
 
+// MARK: - CustomAlertDelegate Methods
 extension SideMenuViewController: CustomAlertDelegate {
     // CustomAlertDelegate 메서드 구현
     func handleConfirmAction() {
-        let chatDAO = ChatRepository()
-        if chatDAO.clearAllChatData() {
-            let initVC = InitialSetupViewController()
-
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let sceneDelegate = windowScene.delegate as? SceneDelegate {
-                UserDefaults.standard.set(false, forKey: "initialSetupCompleted") // 초기설정 안된것을 바꾸는 초기화 처리
-                sceneDelegate.changeRootVC(initVC, animated: true)
-            }
-        }
+//        let repository = ChatRepository()
+//        if repository.clearAllChatData() {
+//            let initVC = InitialSetupViewController()
+//
+//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//               let sceneDelegate = windowScene.delegate as? SceneDelegate {
+//                UserDefaults.standard.set(false, forKey: "initialSetupCompleted") // 초기설정 안된것을 바꾸는 초기화 처리
+//                sceneDelegate.changeRootVC(initVC, animated: true)
+//            }
+//        }
         print("확인 버튼을 눌렀습니다.")
     }
 
@@ -249,6 +383,16 @@ extension SideMenuViewController: CustomAlertDelegate {
         let customAlertVC = CustomAlertViewController(
             alertText: "채팅방을 나가면 대화 내용이 모두 삭제됩니다.\n정말 나가시겠습니까?",
             alertType: .canCancel,
+            delegate: self
+        )
+
+        present(customAlertVC, animated: true, completion: nil)
+    }
+    
+    func showAlert(alertText: String) {
+        let customAlertVC = CustomAlertViewController(
+            alertText: alertText,
+            alertType: .onlyConfirm,
             delegate: self
         )
 

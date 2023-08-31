@@ -87,13 +87,13 @@ class GPTChatViewModel {
         
         let totalTokens = isSubtractionMode ? ownedToken.value - tokens : ownedToken.value + tokens
         
-        if self.chatDAO.updateOwnedToken(ownedTokens: totalTokens, updateTime: astDateTime.string(from: Date())) {
-            
-            print("보유 토큰 업데이트 성공",totalTokens)
-            self.ownedToken.accept(self.chatDAO.getOwnedToken()!)
-            print("보유 토큰 업데이트 성공후",self.chatDAO.getOwnedToken()!)
-            return true
-        }
+//        if self.chatDAO.updateOwnedToken(ownedTokens: totalTokens, updateTime: astDateTime.string(from: Date())) {
+//            
+//            print("보유 토큰 업데이트 성공",totalTokens)
+//            self.ownedToken.accept(self.chatDAO.getOwnedToken()!)
+//            print("보유 토큰 업데이트 성공후",self.chatDAO.getOwnedToken()!)
+//            return true
+//        }
         return false
     }
     
