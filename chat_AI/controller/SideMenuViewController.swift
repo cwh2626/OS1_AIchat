@@ -4,6 +4,7 @@
 //
 //  Created by 조웅희 on 2023/08/28.
 //
+// 개선점! NO.02 : 광고 로딩 실패시 처리를 넣어야함 한번 실패하면 광고로딩을 재차 시도하도록 Bool형값을 넣어서 수정하도록 추후 개선필요
 
 import UIKit
 import RxSwift
@@ -228,6 +229,7 @@ class SideMenuViewController: UIViewController {
                            request: request,
                            completionHandler: { [self] ad, error in
             if let error = error {
+                // 개선점! NO.02 : 광고 로딩 실패시 처리를 넣어야함 한번 실패하면 광고로딩을 재차 시도하도록 Bool형값을 넣어서 수정하도록 추후 개선필요
                 print("보상형 광고 로딩 실패: \(error.localizedDescription)")
                 return
             }

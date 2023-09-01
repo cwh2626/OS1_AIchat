@@ -15,7 +15,7 @@ class GPTChatViewModel {
     
     var ownedToken = BehaviorRelay<Double>(value: 0)
         
-    let chatDAO = ChatRepository()
+    let chatDAO = ChatRepository.shared
     var chatDataList: [Chat]
     var chatMaximumTokens: Int
     var chatCurrentTokens = BehaviorRelay<Int>(value: 0)
@@ -88,7 +88,7 @@ class GPTChatViewModel {
         let totalTokens = isSubtractionMode ? ownedToken.value - tokens : ownedToken.value + tokens
         
 //        if self.chatDAO.updateOwnedToken(ownedTokens: totalTokens, updateTime: astDateTime.string(from: Date())) {
-//            
+//
 //            print("보유 토큰 업데이트 성공",totalTokens)
 //            self.ownedToken.accept(self.chatDAO.getOwnedToken()!)
 //            print("보유 토큰 업데이트 성공후",self.chatDAO.getOwnedToken()!)

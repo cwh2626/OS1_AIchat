@@ -9,10 +9,13 @@ import FMDB
 import RxSwift
 
 class ChatRepository {
+    // 싱글톤 적용 SQL인스턴스는 DB안정성을 위해 하나로 돌려쓰는걸로
+    static let shared = ChatRepository()
+    private let queue = DispatchQueue(label: "com.cwh2626.chat-AI.OS1.chatrepository")
     
     lazy var fmdb: FMDatabase! = {
         // 번들에 내장되어있는 DB경로
-        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? "")
+//        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? "")
 
         // 1. 파일 매니저 객체를 생성
         let fileMgr = FileManager.default
@@ -32,11 +35,29 @@ class ChatRepository {
         return db
     }()
     
-    init() {
-        self.fmdb.open()
+    private func performDatabaseTask(_ task: @escaping () -> Void) {
+        queue.sync {
+            task()
+        }
     }
+    
+    private init() {
+        self.openDatabase()
+    }
+    
+    // static으로 인스턴스를 생성했기에 앱을종료해도 호출되지않겠지만 습관, 또는 명시해두면 가독성에 굿?
     deinit {
+        self.closeDatabase()
+    }
+    
+    func closeDatabase() {
+        guard self.fmdb.isOpen else { return }
         self.fmdb.close()
+    }
+    
+    func openDatabase() {
+        guard !self.fmdb.isOpen else { return }
+        self.fmdb.open()
     }
     
     func getAllSysContent() -> [Chat] {
@@ -118,26 +139,37 @@ class ChatRepository {
         return chatList
     }
     
-    func getCurrentMessageToken() -> Int? {
-        var MessageToken:Int?
-        
-        do {
-            let sql = """
-                SELECT TOTAL_TOKENS
-                FROM CHAT_TOKEN_TB
-            """
-            
-            let rs = try self.fmdb.executeQuery(sql, values: nil)
-            
-            // 2. 결과 집합 추출
-            while rs.next() {
-                MessageToken = Int(rs.int(forColumn: "TOTAL_TOKENS"))
+    func getCurrentMessageToken() -> Single<Int> {
+        return Single.create { [weak self] single in
+            self?.performDatabaseTask {
+                var messageToken:Int?
+                
+                do {
+                    let sql = """
+                        SELECT TOTAL_TOKENS
+                        FROM CHAT_TOKEN_TB
+                    """
+                    
+                    let rs = try self?.fmdb.executeQuery(sql, values: nil)
+                    
+                    while rs!.next() {
+                        messageToken = Int(rs!.int(forColumn: "TOTAL_TOKENS"))
+                    }
+                    
+                    if let _messageToken = messageToken {
+                        single(.success(_messageToken))
+                    } else {
+                        single(.failure(DatabaseErrorHelper.dataNotFoundError()))
+                    }
+                    
+                }catch let error as NSError {
+                    print("failed: \(error.localizedDescription)")
+                    single(.failure(error))
+                }
             }
-        }catch let error as NSError {
-            print("failed: \(error.localizedDescription)")
+            
+            return Disposables.create()
         }
-        
-        return MessageToken
     }
     
     func getMixmumMessageToken() -> Int? {
@@ -183,26 +215,38 @@ class ChatRepository {
         }
     }
         
-    func getOwnedToken() -> Double? {
-        var OwnedToken:Double?
-        
-        do {
-            let sql = """
-                SELECT OWNED_TOKENS
-                FROM USER_TOKEN_TB
-            """
+    func getOwnedToken() -> Single<Double> {
+        return Single.create { [weak self] single in
             
-            let rs = try self.fmdb.executeQuery(sql, values: nil)
-            
-            // 2. 결과 집합 추출
-            while rs.next() {
-                OwnedToken = rs.double(forColumn: "OWNED_TOKENS")
+            self?.performDatabaseTask {
+                var OwnedToken:Double?
+                
+                do {
+                    let sql = """
+                        SELECT OWNED_TOKENS
+                        FROM USER_TOKEN_TB
+                    """
+                    
+                    let rs = try self?.fmdb.executeQuery(sql, values: nil)
+                    
+                    // 2. 결과 집합 추출
+                    while rs!.next() {
+                        OwnedToken = rs!.double(forColumn: "OWNED_TOKENS")
+                    }
+                    
+                    if let _OwnedToken = OwnedToken {
+                        single(.success(_OwnedToken))
+                    } else {
+                        single(.failure(DatabaseErrorHelper.dataNotFoundError()))
+                    }
+
+                }catch let error as NSError {
+                    print("failed: \(error.localizedDescription)")
+                    single(.failure(error))
+                }
             }
-        }catch let error as NSError {
-            print("failed: \(error.localizedDescription)")
+            return Disposables.create()
         }
-        
-        return OwnedToken
     }
     
     func getTokenLimit() -> Double? {
@@ -227,25 +271,26 @@ class ChatRepository {
         return TokenLimit
     }
     
-    func updateOwnedToken(ownedTokens: Double, updateTime: String) -> Single<Bool> {
-        return Single.create { single in
-           do {
-               let sql = """
+    func updateOwnedToken(ownedTokens: Double, updateTime: String) -> Completable {
+        return Completable.create { [weak self] completable in
+            self?.performDatabaseTask {
+                do {
+                    let sql = """
                    UPDATE USER_TOKEN_TB
                    SET OWNED_TOKENS = ? ,TIMESTAMP = ?
-                   WHERE NUMBE
+                   WHERE NUMBER = 1
                """
-               var params = [Any]()
-               params.append(ownedTokens)
-               params.append(updateTime)
-               try self.fmdb.executeUpdate(sql, values: params)
-               
-               single(.success(true))
-           } catch let error {
-               print("Insert Error: \(error.localizedDescription)")
-               single(.failure(error))
-           }
-           
+                    var params = [Any]()
+                    params.append(ownedTokens)
+                    params.append(updateTime)
+                    try self?.fmdb.executeUpdate(sql, values: params)
+                    
+                    completable(.completed)
+                } catch let error {
+                    print("Insert Error: \(error.localizedDescription)")
+                    completable(.error(error))
+                }
+            }
            return Disposables.create()
        }
     }

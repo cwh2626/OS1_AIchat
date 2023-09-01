@@ -21,7 +21,7 @@ class SideMenuViewModel {
     private let limitToken: Double = 999999
     private let rewardedTokens: Double = 4000
     private let disposeBag = DisposeBag()
-    private let repository = ChatRepository()
+    private let repository = ChatRepository.shared
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -93,14 +93,56 @@ class SideMenuViewModel {
         return result
     }
     
+    /// 이 함수는 Single<T> 타입의 observable을 처리
+    /// Observable은 비동기적으로 동작하여 결과가 준비될 때까지 함수 실행을 기다릴 필요 없이
+    /// 다른 작업을 계속 수행가능.
+    /// 그래서, 클로저들 (`onSuccess` 및 `onFailure`)은
+    /// 함수의 실행이 끝난 후에도 호출될 수 있으니,  `successHandler` 클로저에는
+    /// `@escaping` 키워드가 필요
+    private func handleTokenFetching<T>(_ observable: Single<T>, successHandler: @escaping (T) -> Void) {
+        Environment.debugPrint_START()
+        
+        observable
+            .subscribe(onSuccess: { value in
+                successHandler(value)
+            }, onFailure: { [weak self] error in
+                self?.errorRelay.accept(error)
+            })
+            .disposed(by: disposeBag)
+        
+        Environment.debugPrint_END()
+    }
+    
+    private func handleCompletion(_ completable: Completable, completionHandler: @escaping () -> Void) {
+        Environment.debugPrint_START()
+        
+        completable
+            .subscribe(
+                onCompleted: {
+                    completionHandler()
+                },
+                onError: { [weak self] error in
+                    self?.errorRelay.accept(error)
+                }
+            )
+            .disposed(by: disposeBag)
+        
+        Environment.debugPrint_END()
+    }
+
+    
     func fetchTokenInfo(isCalledFromSideMenuButton: Bool) {
         Environment.debugPrint_START()
         
-        self.ownedToken.accept(repository.getOwnedToken()!)
+        handleTokenFetching(repository.getOwnedToken()) { [weak self] value in
+            self?.ownedToken.accept(value)
+        }
         
         if isCalledFromSideMenuButton {
             // 사이드 메뉴 버튼에 의해 호출된 경우의 처리
-            self.usedToken.accept(repository.getCurrentMessageToken()!)
+            handleTokenFetching(repository.getCurrentMessageToken()) { [weak self] value in
+                self?.usedToken.accept(value)
+            }
         }
         
         Environment.debugPrint_END()
@@ -112,13 +154,9 @@ class SideMenuViewModel {
         let newValue = self.ownedToken.value + tokens
         let updateTime = dateFormatter.string(from: Date())
         
-        self.repository.updateOwnedToken(ownedTokens: newValue, updateTime: updateTime)
-            .subscribe(onSuccess: { [weak self] success in
-                self?.ownedToken.accept(newValue)
-            }, onFailure: { [weak self] error in
-                self?.errorRelay.accept(error)
-            })
-            .disposed(by: disposeBag)
+        handleCompletion(repository.updateOwnedToken(ownedTokens: newValue, updateTime: updateTime)) { [weak self] in
+            self?.ownedToken.accept(newValue)
+        }
         
         Environment.debugPrint_END()
     }

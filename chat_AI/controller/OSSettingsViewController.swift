@@ -83,7 +83,7 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
     override func viewDidLoad(){
         Environment.debugPrint_START()
         
-        let repository = ChatRepository()
+        let repository = ChatRepository.shared
         viewModel = OSSettingsViewModel(repository: repository) // 뷰 모델 초기화
         sysData = viewModel.loadData()
         super.viewDidLoad()
