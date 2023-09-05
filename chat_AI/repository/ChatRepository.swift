@@ -23,7 +23,7 @@ class ChatRepository {
         // 2. 샌드박스 내 문서 디렉터리에서 데이터베이스 파일 경로를 확인
         let docPathURL = fileMgr.urls(for: .documentDirectory, in: .userDomainMask).first!
         let dbPath = docPathURL.appendingPathComponent("ChatStorage.db").path
-//        try! fileMgr.removeItem(atPath: dbPath)
+
         // 3. 샌드박스 경로에 파일이 없다면 메인 번들에 만들어 둔 hr.sqlite를 가져와 복사
         if fileMgr.fileExists(atPath: dbPath) == false {
             let dbSource = Bundle.main.path(forResource: "ChatStorage", ofType: "db")
@@ -85,7 +85,7 @@ class ChatRepository {
                 
                 let cd: Int = Int(rs.int(forColumn: "ROLE")) // DB에서 읽어온 ROLE 값
                 record.role = ChatRoleType(rawValue: cd)!
-//                print(#function, "룰 : \(cd) - > \(record.role)")
+
                 
                 chatList.append(record)
             }
@@ -128,7 +128,7 @@ class ChatRepository {
                 
                 let cd: Int = Int(rs.int(forColumn: "ROLE")) // DB에서 읽어온 ROLE 값
                 record.role = ChatRoleType(rawValue: cd)!
-//                print(#function, "룰 : \(cd) - > \(record.role)")
+
                 
                 chatList.append(record)
             }
@@ -172,26 +172,35 @@ class ChatRepository {
         }
     }
     
-    func getMixmumMessageToken() -> Int? {
-        var maximumToken:Int?
-        
-        do {
-            let sql = """
-                SELECT MAXIMUM_TOKENS
-                FROM CHAT_TOKEN_TB
-            """
-            
-            let rs = try self.fmdb.executeQuery(sql, values: nil)
-            
-            // 2. 결과 집합 추출
-            while rs.next() {
-                maximumToken = Int(rs.int(forColumn: "MAXIMUM_TOKENS"))
+    func getMixmumMessageToken() -> Single<Int> {
+        return Single.create { [weak self] single in
+            self?.performDatabaseTask {
+                var maximumToken:Int?
+                do {
+                    let sql = """
+                        SELECT MAXIMUM_TOKENS
+                        FROM CHAT_TOKEN_TB
+                    """
+                    
+                    let rs = try self?.fmdb.executeQuery(sql, values: nil)
+                    
+                    // 2. 결과 집합 추출
+                    while rs!.next() {
+                        maximumToken = Int(rs!.int(forColumn: "MAXIMUM_TOKENS"))
+                    }
+                    if let _maximumToken = maximumToken {
+                        single(.success(_maximumToken))
+                    } else {
+                        single(.failure(DatabaseErrorHelper.dataNotFoundError()))
+                    }
+                }catch let error as NSError {
+                    print("failed: \(error.localizedDescription)")
+                    single(.failure(error))
+                }
+                   
             }
-        }catch let error as NSError {
-            print("failed: \(error.localizedDescription)")
+            return Disposables.create()
         }
-        
-        return maximumToken
     }
     
     func updateMessageToken(promptTokens: Int, updateTime: String) -> Bool {
@@ -276,10 +285,10 @@ class ChatRepository {
             self?.performDatabaseTask {
                 do {
                     let sql = """
-                   UPDATE USER_TOKEN_TB
-                   SET OWNED_TOKENS = ? ,TIMESTAMP = ?
-                   WHERE NUMBER = 1
-               """
+                       UPDATE USER_TOKEN_TB
+                       SET OWNED_TOKENS = ? ,TIMESTAMP = ?
+                       WHERE NUMBER = 1
+                    """
                     var params = [Any]()
                     params.append(ownedTokens)
                     params.append(updateTime)
@@ -356,32 +365,34 @@ class ChatRepository {
         }
     }
     
-    func clearAllChatData() -> Bool {
-        do {
-
-            let astDateTime = DateFormatter()
-            astDateTime.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-            
-            var sql = """
-                DELETE FROM CHAT_HISTORY_TB
-                WHERE ROLE != 0
-            """
-            try self.fmdb.executeUpdate(sql, values: nil)
-            
-            sql = """
-                UPDATE CHAT_TOKEN_TB
-                SET TOTAL_TOKENS = 0 ,TIMESTAMP = ?
-                WHERE NUMBER = 1
-            """
-            var params = [Any]()
-            params.append(astDateTime.string(from: Date()))
-            
-            try self.fmdb.executeUpdate(sql, values: params)
-            
-            return true
-        } catch let error as NSError {
-            print("Insert Error: \(error.localizedDescription)")
-            return false
+    func clearAllChatData(updateTime: String) -> Completable {
+        return Completable.create { [weak self] completable in
+            self?.performDatabaseTask {
+                do {
+                    var sql = """
+                        DELETE FROM CHAT_HISTORY_TB
+                        WHERE ROLE != 0
+                    """
+                    try self?.fmdb.executeUpdate(sql, values: nil)
+                    
+                    sql = """
+                        UPDATE CHAT_TOKEN_TB
+                        SET TOTAL_TOKENS = 0 ,TIMESTAMP = ?
+                        WHERE NUMBER = 1
+                    """
+                    var params = [Any]()
+                    params.append(updateTime)
+                    
+                    try self?.fmdb.executeUpdate(sql, values: params)
+                    completable(.completed)
+                    
+                } catch let error as NSError {
+                    print("Insert Error: \(error.localizedDescription)")
+                    completable(.error(error))
+                    
+                }
+            }
+            return Disposables.create()
         }
     }
 }

@@ -11,15 +11,14 @@ import RxCocoa
 
 /// OS1 행동 및 성격 설정 페이지
 class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
-    // MARK: - Properties
-    
+    // MARK: - Properties    
     private var isStartupView: Bool
     private let toolTipMessage = "우측 상단의 '+' 버튼을 눌러 OS를 커스텀하세요. 성격, 행동 등을 직접 설정할 수 있습니다.\n\n최대 5개의 설정 카드를 추가할 수 있으며, 영어로 설정하는 것이 인식률을 향상시킬 수 있습니다."
     private var cellHeights: [CGFloat] = []
     private var sysData: [Chat] = []
     private let cellIdentifier = "CustomCell"
     private var expandedCellIndexPath: IndexPath?
-    private var viewModel: OSSettingsViewModel! // 뷰 모델 인스턴스
+    private let viewModel = OSSettingsViewModel()
     
     // conbine의.store(in: &cancellables) 와 비슷한기능이다 disposeBag 담아 두었다가 해당 변수가 deinit 타이밍에 dispose 하는 구조이다.
     // Observable의 메모리 누수 방지를 위한 자동 구독해지 기능이라고 생각하면 편할듯
@@ -82,9 +81,7 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
     
     override func viewDidLoad(){
         Environment.debugPrint_START()
-        
-        let repository = ChatRepository.shared
-        viewModel = OSSettingsViewModel(repository: repository) // 뷰 모델 초기화
+                
         sysData = viewModel.loadData()
         super.viewDidLoad()
         setupUI()
@@ -159,7 +156,7 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
         Environment.debugPrint_START()
         
         // 설정카드가 5개를 초과할 경우 경고 얼러터 표시
-        guard self.settingCardTableView.numberOfRows(inSection: 0) < 5 else { return showAlert() }
+        guard self.settingCardTableView.numberOfRows(inSection: 0) < 5 else { return showAlert(alertText: .maxCardLimitReached, alertType: .onlyConfirm) }
         
         let indexPath = IndexPath(row: self.sysData.count, section: 0)
         self.sysData.append(Chat.init())
@@ -387,32 +384,32 @@ class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
 
 // MARK: - Extensions
 
-extension OSSettingsViewController: CustomAlertDelegate {
-    // CustomAlertDelegate 메서드 구현
-    func handleConfirmAction() {
-        print("확인 버튼을 눌렀습니다.")
-    }
-
-    func handleCancelAction() {
-        print("취소 버튼을 눌렀습니다.")
-    }
-    
-    func showAlert() {
-        Environment.debugPrint_START()
-        
-        let customAlertVC = CustomAlertViewController(
-            alertText: "설정 카드는 최대 5개까지만\n추가하실 수 있습니다.",
-            alertType: .onlyConfirm,
-            delegate: self
-        )
-
-        present(customAlertVC, animated: true, completion: nil)
-        
-        Environment.debugPrint_END()
-    }
-    
-    
-}
+//extension OSSettingsViewController: CustomAlertDelegate {
+//    // CustomAlertDelegate 메서드 구현
+//    func handleConfirmAction() {
+//        print("확인 버튼을 눌렀습니다.")
+//    }
+//
+//    func handleCancelAction() {
+//        print("취소 버튼을 눌렀습니다.")
+//    }
+//
+//    func showAlert() {
+//        Environment.debugPrint_START()
+//
+//        let customAlertVC = CustomAlertViewController(
+//            alertText: "설정 카드는 최대 5개까지만\n추가하실 수 있습니다.",
+//            alertType: .onlyConfirm,
+//            delegate: self
+//        )
+//
+//        present(customAlertVC, animated: true, completion: nil)
+//
+//        Environment.debugPrint_END()
+//    }
+//
+//
+//}
 
 extension OSSettingsViewController: UITableViewDataSource, UITableViewDelegate {
     // MARK: - UITableViewDataSource Methods

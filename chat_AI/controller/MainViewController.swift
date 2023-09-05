@@ -325,8 +325,8 @@ class MainViewController: UIViewController, UITextFieldDelegate {
     
     // 전송 버튼 액션이벤트
     @objc func sendButtonTapped(_ sender: UIButton) {
-        guard !(messageInputView.text!.isEmpty) else { return self.showAlert(alertText: "대화를 시작하려면 메시지를 입력해주세요.") } // 텍스트가 있을시에
-        guard viewModel.ownedToken.value > 0 else { return self.showAlert(alertText: "토큰이 부족해요. 토큰을 충전해주세요.") }
+        guard !(messageInputView.text!.isEmpty) else { return showAlert(alertText: .promptForChatStart, alertType: .onlyConfirm) } // 텍스트가 있을시에
+        guard viewModel.ownedToken.value > 0 else { return showAlert(alertText: .insufficientTokens, alertType: .onlyConfirm) }
         
         let userDateTime = DateFormatter()
         userDateTime.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
@@ -357,7 +357,7 @@ class MainViewController: UIViewController, UITextFieldDelegate {
                 // .now() + 0.5는 현재 시간에서 0.5초 후를 의미, 하며 toggleToolbarItemAnimation의 애니메이션이 끝나지 않은 상태에서 다시 작동하게 toggleToolbarItemAnimation을 호출하게 되면 애니메이션이 정상적으로 처리되지않기에 이렇게 딜레이를 주어서 애니메이션 충돌을 막게한다
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)  {
                     self.toggleToolbarItemAnimation()
-                    self.showAlert(alertText: "Error")
+                    self.showAlert(alertText: .unknownError, alertType: .onlyConfirm)
                 }
                 return print("Error: No state")
                 
@@ -401,12 +401,12 @@ class MainViewController: UIViewController, UITextFieldDelegate {
                 if stopToggle {
                 self.addBubbleLabel(_response, isUser: false) // 답변을 채팅창에 추가
                     if finishReasonState.length == _state  {
-                        self.showAlert(alertText: _state.desc())
+                        self.showAlert(alertText: AlertMessage(rawValue: _state.desc()) ?? .unknownError, alertType: .onlyConfirm)
                     }
                 } else if self.viewModel.chatMaximumTokens <= self.viewModel.chatCurrentTokens.value {
-                    self.showAlert(alertText: finishReasonState.length.desc())
+                    self.showAlert(alertText: AlertMessage(rawValue: finishReasonState.length.desc()) ?? .unknownError, alertType: .onlyConfirm)
                 } else {
-                    self.showAlert(alertText: _state.desc())
+                    self.showAlert(alertText: AlertMessage(rawValue: _state.desc()) ?? .unknownError, alertType: .onlyConfirm)
                 }
             }
         }
@@ -665,23 +665,23 @@ class MainViewController: UIViewController, UITextFieldDelegate {
 
 // MARK: - Extensions
 
-extension MainViewController: CustomAlertDelegate {
-    // CustomAlertDelegate 메서드 구현
-    func handleConfirmAction() {
-        print("확인 버튼을 눌렀습니다.")
-    }
-
-    func handleCancelAction() {
-        print("취소 버튼을 눌렀습니다.")
-    }
-    
-    func showAlert(alertText: String) {
-        let customAlertVC = CustomAlertViewController(
-            alertText: alertText,
-            alertType: .onlyConfirm,
-            delegate: self
-        )
-
-        present(customAlertVC, animated: true, completion: nil)
-    }
-}
+//extension MainViewController: CustomAlertDelegate {
+//    // CustomAlertDelegate 메서드 구현
+//    func handleConfirmAction() {
+//        print("확인 버튼을 눌렀습니다.")
+//    }
+//
+//    func handleCancelAction() {
+//        print("취소 버튼을 눌렀습니다.")
+//    }
+//
+//    func showAlert(alertText: String) {
+//        let customAlertVC = CustomAlertViewController(
+//            alertText: alertText,
+//            alertType: .onlyConfirm,
+//            delegate: self
+//        )
+//
+//        present(customAlertVC, animated: true, completion: nil)
+//    }
+//}

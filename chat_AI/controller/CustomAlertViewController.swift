@@ -12,47 +12,16 @@ enum AlertType {
     case canCancel      // 확인 + 취소 버튼
 }
 
-protocol CustomAlertDelegate {
-    func handleConfirmAction()
-    func handleCancelAction()
-}
-
-class CustomAlertViewController: UIViewController {    
-    var alertText: String
-    var alertType: AlertType
-    var delegate: CustomAlertDelegate?
+/// 커스텀 얼러터 뷰컨트롤
+class CustomAlertViewController: UIViewController {
+    // MARK: - Properties
+    private var alertText: String
+    private var alertType: AlertType
+    private var onConfirmAction: (() -> Void)?
+    private var onCancelAction: (() -> Void)?
     
-    init(
-        alertText: String,
-        alertType: AlertType,
-        delegate: CustomAlertDelegate
-    ) {
-        self.alertText = alertText
-        self.alertType = alertType
-        self.delegate = delegate
-
-        super.init(nibName: nil, bundle: nil)
-        
-        modalPresentationStyle = .overFullScreen
-        if alertType == .canCancel {
-            modalTransitionStyle = .crossDissolve            
-        } else if alertType == .onlyConfirm {
-            modalTransitionStyle = .coverVertical
-        }
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        
-    }
-    
-    // MARK: - UI컴포넌트 정의
-    let alertView: UIView = {
+    // MARK: - UI Components
+    private let alertView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.tertiaryBackgroundColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +33,7 @@ class CustomAlertViewController: UIViewController {
         return view
     }()
     
-    let alertTopView: UIView = {
+    private let alertTopView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .clear
@@ -77,7 +46,7 @@ class CustomAlertViewController: UIViewController {
         return view
     }()
     
-    let titleImageView: UIImageView = {
+    private let titleImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "warning")?.withRenderingMode(.alwaysTemplate))
         imageView.tintColor = UIColor.secondaryBackgroundColor
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -85,7 +54,7 @@ class CustomAlertViewController: UIViewController {
         return imageView
     }()
     
-    let textLabel: UILabel = {
+    private let textLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor.secondaryBackgroundColor
         label.font = UIFont.boldSystemFont(ofSize: 14)
@@ -95,7 +64,7 @@ class CustomAlertViewController: UIViewController {
         return label
     }()
     
-    let cancelButton: UIButton = {
+    private let cancelButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal) // 텍스트 색상 설정
         button.setImage(UIImage(named: "close")?.withRenderingMode(.alwaysTemplate), for: .normal)
@@ -103,7 +72,7 @@ class CustomAlertViewController: UIViewController {
         return button
     }()
     
-    let confirmButton: UIButton = {
+    private let confirmButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal) // 텍스트 색상 설정
         button.setImage(UIImage(named: "check")?.withRenderingMode(.alwaysTemplate), for: .normal)
@@ -111,6 +80,36 @@ class CustomAlertViewController: UIViewController {
         return button
     }()
     
+    // MARK: - Initializer
+    init(alertText: String, alertType: AlertType, onConfirmAction: (() -> Void)? = nil, onCancelAction: (() -> Void)? = nil) {
+        self.alertText = alertText
+        self.alertType = alertType
+        self.onConfirmAction = onConfirmAction
+        self.onCancelAction = onCancelAction
+
+        super.init(nibName: nil, bundle: nil)
+        
+        modalPresentationStyle = .overFullScreen
+        if alertType == .canCancel {
+            modalTransitionStyle = .crossDissolve
+        } else if alertType == .onlyConfirm {
+            modalTransitionStyle = .coverVertical
+        }
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - View Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        
+    }
+    
+    // MARK: - Interface Setup
+    // UI초기화 메서드
     private func setupViews() {
         alertView.addSubview(textLabel)
         alertView.addSubview(alertTopView)
@@ -178,74 +177,47 @@ class CustomAlertViewController: UIViewController {
             let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleDismiss(_:)))
             alertView.addGestureRecognizer(panGestureRecognizer)
         }
-       
-        /* 탑뷰 하단 줄긋기 처리 (필요에 따라 활성유무)
-        let borderLayer = CALayer()
-        let borderHeight: CGFloat = 3.0  // 테두리 높이
-        borderLayer.frame = CGRect(x: 0, y: alertTopView.bounds.height - borderHeight, width: alertTopView.bounds.width, height: borderHeight)
-        borderLayer.backgroundColor = UIColor.black.cgColor  // 테두리 색상 설정
-        alertTopView.layer.addSublayer(borderLayer)
-        */
-
-        
-        /* 그래버는 추후에 상단 뷰가 만들어지면 하는걸로
-        let grabberView = GrabberView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
-        grabberView.translatesAutoresizingMaskIntoConstraints = false
-//        alertView.addSubview(grabberView)
-        alertView.layoutIfNeeded()
-        let grabberLayer = CALayer()
-        grabberLayer.frame = CGRect(x: 0, y: alertView.bounds.height - 6, width: alertView.bounds.width, height: 6)
-        grabberLayer.cornerRadius = 3
-            grabberLayer.backgroundColor = UIColor.white.cgColor
-        alertView.layer.addSublayer(grabberLayer)
-        
-//        grabberView.centerXAnchor.constraint(equalTo: alertView.centerXAnchor).isActive = true
-         */
     }
     
-    // MARK: - 액션 메소드 정의
+    // MARK: - Action Methods
     @objc func confirmButtonTapped() {
         self.dismiss(animated: true) {
-            self.delegate?.handleConfirmAction()
+            self.onConfirmAction?()
         }
-        
     }
     
     @objc func cancelButtonTapped() {
         self.dismiss(animated: true) {
-            self.delegate?.handleCancelAction()
+            self.onCancelAction?()
         }
-        
     }
     
-    // 이 함수는 UIPanGestureRecognizer의 동작을 처리합니다. 사용자가 뷰를 드래그하는 동작을 제어하고 관리합니다.
+    // 사용자가 뷰를 드래그하는 동작제어
     @objc func handleDismiss(_ gesture: UIPanGestureRecognizer) {
-        // 사용자가 뷰를 얼마나 드래그했는지를 나타내는 값입니다.
+        // 사용자가 뷰를 얼마나 드래그했는지를 나타내는 값
         let translation = gesture.translation(in: alertView)
         
-        // 제스쳐의 상태에 따라 다른 동작을 수행합니다.
+        // 제스쳐의 상태에 따라 다른 동작 수행
         switch gesture.state {
         case .changed:
-            // 사용자가 뷰를 드래그하는 동안, 뷰의 위치를 조절합니다.
-            // 뷰는 아래쪽으로만 드래그될 수 있습니다.
+            // 사용자가 뷰를 드래그하는 동안, 뷰의 위치 조절
+            // 뷰는 아래쪽으로만 드래그 가능
             if translation.y >= 0 {
                 alertView.transform = CGAffineTransform(translationX: 0, y: translation.y)
             }
         case .ended:
-            // 사용자가 뷰를 드래그하고 손을 뗐을 때, 뷰의 최종 위치에 따라 다른 동작을 수행합니다.
-            // 사용자가 뷰를 충분히 아래쪽으로 드래그했다면, 알림을 닫습니다.
-            if translation.y > 110 {  // 이 값은 당신의 필요에 따라 조정할 수 있습니다.
+            // 사용자가 뷰를 드래그하고 손을 뗐을 때, 뷰의 최종 위치에 따라 다른 동작 수행
+            // 사용자가 뷰를 충분히 아래쪽으로 드래그했다면, 알림을 닫음
+            if translation.y > 110 {
                 confirmButtonTapped()
             } else {
-                // 사용자가 뷰를 충분히 아래쪽으로 드래그하지 않았다면, 뷰의 위치를 원래대로 되돌립니다.
+                // 사용자가 뷰를 충분히 아래쪽으로 드래그하지 않았다면, 뷰의 위치를 원래대로 되돌림
                 UIView.animate(withDuration: 0.3) {
                     self.alertView.transform = CGAffineTransform(translationX: 0, y: 0)
                 }
             }
         default:
-            // 기타 상황에서는 아무런 동작도 수행하지 않습니다.
             break
         }
     }
-
 }

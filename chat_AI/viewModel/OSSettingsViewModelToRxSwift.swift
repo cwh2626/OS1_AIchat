@@ -1,9 +1,8 @@
 //
-//  OSSettingsViewModel.swift
+//  OSSettingsViewModelToRxSwift.swift
 //  chat_AI
 //
-//  Created by 조웅희 on 2023/05/11.
-//
+//  Created by 조웅희 on 2023/09/04.
 // 개선점! NO.01 : 설정화면에서 데이터를 추가하면 채팅방의 메시지 데이터에 적용하는 방식을 현재 노티피케이션으로 하고있다.
 // 이 방법보다는 채팅방의 메시지를 보낼때 sys데이터가 최신데이터인지 업데이트타임으로 체크후 데이터 업데이트유무를 판단하는게 더 효율적으로 보인다 추후 개선을 해보자
 
@@ -12,12 +11,16 @@ import RxSwift
 import RxCocoa
 
 /// OS1 행동 및 성격 설정 페이지 뷰모델
-class OSSettingsViewModel {
+class OSSettingsViewModelToRxSwift {
     
     // MARK: - Properties
     let settingsitems = PublishRelay<[Chat]>()
+    
     private var originalChatSysDataList: [Chat]
     private let repository = ChatRepository.shared
+    
+    private let changedSysData = BehaviorRelay<[Chat]>(value: [])
+    private let originalSysData: [Chat]
 
     private let disposeBag = DisposeBag()
     
@@ -32,6 +35,7 @@ class OSSettingsViewModel {
     init() {
         Environment.debugPrint_START()
         
+        self.originalSysData = self.repository.getAllSysContent()
         self.originalChatSysDataList = self.repository.getAllSysContent()
         
         settingsitems
@@ -96,3 +100,4 @@ class OSSettingsViewModel {
         Environment.debugPrint_END()
     }
 }
+

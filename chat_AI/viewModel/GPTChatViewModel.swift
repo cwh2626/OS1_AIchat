@@ -17,16 +17,16 @@ class GPTChatViewModel {
         
     let chatDAO = ChatRepository.shared
     var chatDataList: [Chat]
-    var chatMaximumTokens: Int
+    var chatMaximumTokens: Int = 1000
     var chatCurrentTokens = BehaviorRelay<Int>(value: 0)
     
     private var messages: [[String: String]] = []
     
     init() {
-        self.ownedToken.accept(chatDAO.getOwnedToken()!)
+//        self.ownedToken.accept(chatDAO.getOwnedToken()!)
         self.chatDataList = chatDAO.get(sysRole: true) + chatDAO.get(sysRole: false)
-        self.chatMaximumTokens = chatDAO.getMixmumMessageToken()!
-        self.chatCurrentTokens.accept(chatDAO.getCurrentMessageToken()!)
+//        self.chatMaximumTokens = chatDAO.getMixmumMessageToken()!
+//        self.chatCurrentTokens.accept(chatDAO.getCurrentMessageToken()!)
 
         chatDataList.forEach { body in
             self.addMessage(role: body.role, content: body.content)
@@ -45,7 +45,7 @@ class GPTChatViewModel {
         if self.chatDAO.updateMessageToken(promptTokens: tokens, updateTime: updateTime) {
             
             print("토큰 데이터 업데이트 성공",updateTime)
-            let newTotalTokens = self.chatDAO.getCurrentMessageToken()!
+            let newTotalTokens = 1000
             self.chatCurrentTokens.accept(newTotalTokens)
             guard self.adjustOwnedToken(tokens: Double(newTotalTokens), isSubtractionMode: true) else {return false}
             return true

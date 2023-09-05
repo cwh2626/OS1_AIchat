@@ -16,16 +16,17 @@ class SideMenuViewController: UIViewController {
     // MARK: - Properties
     private let AdMobRewardADId = Environment.AdMobRewardADId
     private var rewardedAd: GADRewardedAd?
+    private var isRewardAdShowing = false
     private var isRewardedAdLoaded = false
     private let menuItems = ["Settings", "Exit"]
     private let sideMenuWidth: CGFloat = UIScreen.main.bounds.width * 0.8 > 340 ? 340 : UIScreen.main.bounds.width * 0.8
     private let padding = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
-    private let viewModel = SideMenuViewModel()
-    private var errorToDisplay: Error?
+    private var viewModel: SideMenuViewModel!
+    private var hadAdError = false
+    private var didAdLoadFail = false
     
     // Observable의 메모리 누수 방지를 위한 자동 구독해지 기능이라고 생각하면 편할듯
     private let disposeBag = DisposeBag()
-    
     
     // MARK: - UI Components
     private let balanceCardView = BalanceCardView()
@@ -58,11 +59,17 @@ class SideMenuViewController: UIViewController {
         Environment.debugPrint_START()
         
         super.viewDidLoad()
+        self.viewModel = SideMenuViewModel()
         loadRewardedAd()
         setupUI()
-        bindViewModel()
+        bindViewModel(self.viewModel)
         
         Environment.debugPrint_END()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.viewModel.loadMaximumToken()
     }
     
     // MARK: - Interface Setup
@@ -116,7 +123,7 @@ class SideMenuViewController: UIViewController {
     }
     
     // MARK: - ViewModel Binding
-    private func bindViewModel() {
+    private func bindViewModel(_ : SideMenuViewModel) {
         Environment.debugPrint_START()
         
         viewModel.formattedOwnedToken
@@ -131,15 +138,30 @@ class SideMenuViewController: UIViewController {
             .bind(to: self.balanceCardView.limitProgressBar.rx.progress)
             .disposed(by: disposeBag)
         
+        // rootVC 변경 이벤트를 핸들링
+        viewModel.changeRootVC.subscribe(onNext: {
+            let initVC = InitialSetupViewController()
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let sceneDelegate = windowScene.delegate as? SceneDelegate {
+                sceneDelegate.changeRootVC(initVC, animated: true)
+            }
+        }).disposed(by: disposeBag)
+        
         self.balanceCardView.chargeButton.rx.tap
             .withLatestFrom(viewModel.isExceedingLimit) // withLatestFrom : 최신값 호출
             .subscribe(onNext: { [weak self] isExceeding in // onNext : 'withLatestFrom' 으로부터 받아온 최신값 구독
-                guard !isExceeding else {
-                    self?.showAlert(alertText: "허용된 토큰 보유 한도를 초과했습니다.")
+                guard !self!.didAdLoadFail else {
+                    self?.showAlert(alertText: .adError, alertType: .onlyConfirm)
                     return
                 }
+                
                 guard self!.isRewardedAdLoaded else {
-                    self?.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.")
+                    self?.showAlert(alertText: .adPreparing, alertType: .onlyConfirm)
+                    return
+                }
+                
+                guard !isExceeding else {
+                    self?.showAlert(alertText: .exceededAllowedLimit, alertType: .onlyConfirm)
                     return
                 }
                 
@@ -148,9 +170,16 @@ class SideMenuViewController: UIViewController {
             .disposed(by: disposeBag)
         
         // 에러 처리 바인딩
-        viewModel.error
+        viewModel.adError
             .subscribe(onNext: { [weak self] error in
-                self?.errorToDisplay = error
+                self?.hadAdError = true
+                
+            })
+            .disposed(by: disposeBag)
+        
+        viewModel.generalError
+            .subscribe(onNext: { [weak self] error in
+                self?.showAlert(alertText: .databaseError, alertType: .onlyConfirm)
             })
             .disposed(by: disposeBag)
         
@@ -229,8 +258,7 @@ class SideMenuViewController: UIViewController {
                            request: request,
                            completionHandler: { [self] ad, error in
             if let error = error {
-                // 개선점! NO.02 : 광고 로딩 실패시 처리를 넣어야함 한번 실패하면 광고로딩을 재차 시도하도록 Bool형값을 넣어서 수정하도록 추후 개선필요
-                print("보상형 광고 로딩 실패: \(error.localizedDescription)")
+                didAdLoadFail = true
                 return
             }
             rewardedAd = ad
@@ -251,7 +279,7 @@ class SideMenuViewController: UIViewController {
                 self.viewModel.addToken(tokens: reward.amount.doubleValue)
             })
         } else {
-            self.showAlert(alertText: "광고가 준비 중입니다. 잠시 후에 다시 시도해 주시기 바랍니다.")
+            self.showAlert(alertText: .adPreparing, alertType: .onlyConfirm)
         }
         
         Environment.debugPrint_END()
@@ -304,10 +332,15 @@ extension SideMenuViewController: UITableViewDataSource, UITableViewDelegate {
             // 뷰 컨트롤러를 프레젠트합니다.
             self.present(viewController, animated: true, completion: nil)
         case 1:
-            self.showAlert()
+            self.showAlert(
+                alertText: .leaveChatroom,
+                alertType: .canCancel,
+                confirmAction: { [weak self] in
+                    self?.viewModel.leaveChatroom()
+                }
+            )
         default:
             print("Invalid row selected")
-            Environment.debugPrint_END()
             return
         }
         
@@ -329,10 +362,9 @@ extension SideMenuViewController: GADFullScreenContentDelegate {
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         Environment.debugPrint_START()
         
-        if let error = self.errorToDisplay {
-            print(error)
-            self.showAlert(alertText: "알 수 없는 데이터베이스 에러가 발생했습니다.")
-            self.errorToDisplay = nil
+        if hadAdError {
+            self.showAlert(alertText: .adError, alertType: .onlyConfirm)
+            self.hadAdError = false
         }
         
         // 광고가 닫힌 후 새로운 광고를 로드합니다.
@@ -357,47 +389,5 @@ extension SideMenuViewController: GADFullScreenContentDelegate {
         print("광고가 풀 스크린으로 표시될 예정입니다.")
         
         Environment.debugPrint_END()
-    }
-}
-
-// MARK: - CustomAlertDelegate Methods
-extension SideMenuViewController: CustomAlertDelegate {
-    // CustomAlertDelegate 메서드 구현
-    func handleConfirmAction() {
-//        let repository = ChatRepository()
-//        if repository.clearAllChatData() {
-//            let initVC = InitialSetupViewController()
-//
-//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//               let sceneDelegate = windowScene.delegate as? SceneDelegate {
-//                UserDefaults.standard.set(false, forKey: "initialSetupCompleted") // 초기설정 안된것을 바꾸는 초기화 처리
-//                sceneDelegate.changeRootVC(initVC, animated: true)
-//            }
-//        }
-        print("확인 버튼을 눌렀습니다.")
-    }
-
-    func handleCancelAction() {
-        print("취소 버튼을 눌렀습니다.")
-    }
-    
-    func showAlert() {
-        let customAlertVC = CustomAlertViewController(
-            alertText: "채팅방을 나가면 대화 내용이 모두 삭제됩니다.\n정말 나가시겠습니까?",
-            alertType: .canCancel,
-            delegate: self
-        )
-
-        present(customAlertVC, animated: true, completion: nil)
-    }
-    
-    func showAlert(alertText: String) {
-        let customAlertVC = CustomAlertViewController(
-            alertText: alertText,
-            alertType: .onlyConfirm,
-            delegate: self
-        )
-
-        present(customAlertVC, animated: true, completion: nil)
     }
 }
