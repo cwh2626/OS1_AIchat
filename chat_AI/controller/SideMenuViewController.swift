@@ -77,9 +77,9 @@ class SideMenuViewController: UIViewController {
     private func setupUI() {
         Environment.debugPrint_START()
         
-        self.view.backgroundColor = UIColor.secondaryBackgroundColor
-        self.view.alpha = 0
         self.view.backgroundColor = .clear
+        self.view.alpha = 0
+        
         
         // 오버레이뷰 설정
         self.overlayView.frame = self.view.bounds
@@ -257,7 +257,7 @@ class SideMenuViewController: UIViewController {
         GADRewardedAd.load(withAdUnitID:AdMobRewardADId,
                            request: request,
                            completionHandler: { [self] ad, error in
-            if let error = error {
+            if error != nil {
                 didAdLoadFail = true
                 return
             }

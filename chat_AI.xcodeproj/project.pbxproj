@@ -41,7 +41,6 @@
 		35EC369C2A9C714B004CC9C6 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC369B2A9C714B004CC9C6 /* SideMenuViewController.swift */; };
 		35EC369E2A9C9A61004CC9C6 /* SideMenuViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC369D2A9C9A60004CC9C6 /* SideMenuViewModel.swift */; };
 		35EC36A02AA1A85D004CC9C6 /* DatabaseErrorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC369F2AA1A85D004CC9C6 /* DatabaseErrorHelper.swift */; };
-		35EC36A22AA5B994004CC9C6 /* OSSettingsViewControllerToRxSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC36A12AA5B994004CC9C6 /* OSSettingsViewControllerToRxSwift.swift */; };
 		35EC36A62AA6EFB2004CC9C6 /* UIViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC36A52AA6EFB2004CC9C6 /* UIViewController+Extensions.swift */; };
 		35EC36A82AA6F026004CC9C6 /* AlertMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EC36A72AA6F026004CC9C6 /* AlertMessage.swift */; };
 		48CE9C57A74401C86D8631D3 /* Pods_chat_AI_chat_AIUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A61FC52F5870074967DDA53 /* Pods_chat_AI_chat_AIUITests.framework */; };
@@ -114,7 +113,6 @@
 		35EC369B2A9C714B004CC9C6 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
 		35EC369D2A9C9A60004CC9C6 /* SideMenuViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewModel.swift; sourceTree = "<group>"; };
 		35EC369F2AA1A85D004CC9C6 /* DatabaseErrorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseErrorHelper.swift; sourceTree = "<group>"; };
-		35EC36A12AA5B994004CC9C6 /* OSSettingsViewControllerToRxSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsViewControllerToRxSwift.swift; sourceTree = "<group>"; };
 		35EC36A52AA6EFB2004CC9C6 /* UIViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extensions.swift"; sourceTree = "<group>"; };
 		35EC36A72AA6F026004CC9C6 /* AlertMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertMessage.swift; sourceTree = "<group>"; };
 		35F5071A2A56EB1B0030FAA4 /* FMDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FMDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -174,7 +172,6 @@
 				35CBFAB12A1CCAA10053AEDE /* TooltipViewController.swift */,
 				3584B58E2A1F609C000EF521 /* CustomAlertViewController.swift */,
 				35EC369B2A9C714B004CC9C6 /* SideMenuViewController.swift */,
-				35EC36A12AA5B994004CC9C6 /* OSSettingsViewControllerToRxSwift.swift */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -585,7 +582,6 @@
 			files = (
 				352C023F2A56718000AC6B51 /* SendButton.swift in Sources */,
 				356C061129F0CAA400ED33B7 /* InitialSetupViewController.swift in Sources */,
-				35EC36A22AA5B994004CC9C6 /* OSSettingsViewControllerToRxSwift.swift in Sources */,
 				3521F73929DEB6AD009E51C2 /* ChatBubbleView.swift in Sources */,
 				35EC36A02AA1A85D004CC9C6 /* DatabaseErrorHelper.swift in Sources */,
 				35B47ACE2A6A7577007B0C25 /* UIHelper.swift in Sources */,
