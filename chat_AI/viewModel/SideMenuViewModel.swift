@@ -38,20 +38,20 @@ class SideMenuViewModel {
     
     // MARK: - Observables
     var formattedOwnedToken: Observable<String> {
-        return ownedToken.map { [unowned self] in
-            self.formatNumber($0)
+        return ownedToken.map { [weak self] in
+            self?.formatNumber($0) ?? "0"
         }
     }
     
     var formattedUsedTokenForLimitValueLabel: Observable<String> {
-        return usedToken.map { tokenValue in
-            "\(tokenValue)/\(self.maximumToken ?? 0000)"
+        return usedToken.map { [weak self] tokenValue in
+            "\(tokenValue)/\(self?.maximumToken ?? 0000)"
         }
     }
 
     var formattedUsedTokenForLimitProgressBar: Observable<Float> {
-        return usedToken.map { tokenValue in
-            Float(tokenValue) / Float(self.maximumToken ?? 0000)
+        return usedToken.map { [weak self] tokenValue in
+            Float(tokenValue) / Float(self?.maximumToken ?? 0000)
         }
     }
 
