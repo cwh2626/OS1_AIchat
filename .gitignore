@@ -2,3 +2,5 @@
 *.xcbkptlist
 
 configurations/
+Pods/
+관련자료/

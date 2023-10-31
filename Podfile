@@ -11,6 +11,7 @@ target 'chat_AI' do
   pod 'RxSwift', '~> 6.0'
   pod 'RxCocoa', '~> 6.0'
   pod 'Google-Mobile-Ads-SDK'
+  pod 'SnapKit', '~> 5.0'
 
 
 

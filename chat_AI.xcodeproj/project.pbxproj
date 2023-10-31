@@ -18,10 +18,10 @@
 		3582D2C629E906D0003AB26C /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3582D2C529E906D0003AB26C /* Chat.swift */; };
 		3584B58F2A1F609C000EF521 /* CustomAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3584B58E2A1F609C000EF521 /* CustomAlertViewController.swift */; };
 		3584B5922A285A37000EF521 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3584B5912A285A37000EF521 /* UIColor+Extensions.swift */; };
+		35A7820D2AC0863A00724717 /* ChatStorage.db in Resources */ = {isa = PBXBuildFile; fileRef = 35A7820C2AC0863A00724717 /* ChatStorage.db */; };
 		35B3CB7F2A304E95007E7D6B /* Notification+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B3CB7E2A304E95007E7D6B /* Notification+Extensions.swift */; };
 		35B3CB852A39826F007E7D6B /* BalanceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B3CB842A39826F007E7D6B /* BalanceCardView.swift */; };
 		35B3CB872A4043DE007E7D6B /* BalloonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B3CB862A4043DE007E7D6B /* BalloonView.swift */; };
-		35B3CB892A45729C007E7D6B /* ChatStorage.db in Resources */ = {isa = PBXBuildFile; fileRef = 35B3CB882A45729C007E7D6B /* ChatStorage.db */; };
 		35B3CB8D2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */; };
 		35B47ACE2A6A7577007B0C25 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B47ACD2A6A7577007B0C25 /* UIHelper.swift */; };
 		35CBFAAE2A0CC4330053AEDE /* OSSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */; };
@@ -86,10 +86,10 @@
 		3584B5912A285A37000EF521 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		35A74E492A0B63F600A1DFE7 /* RxCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RxCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		35A74E4B2A0B640900A1DFE7 /* RxSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RxSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		35A7820C2AC0863A00724717 /* ChatStorage.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = ChatStorage.db; path = "관련자료/DB/ChatStorage.db"; sourceTree = SOURCE_ROOT; };
 		35B3CB7E2A304E95007E7D6B /* Notification+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Extensions.swift"; sourceTree = "<group>"; };
 		35B3CB842A39826F007E7D6B /* BalanceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceCardView.swift; sourceTree = "<group>"; };
 		35B3CB862A4043DE007E7D6B /* BalloonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonView.swift; sourceTree = "<group>"; };
-		35B3CB882A45729C007E7D6B /* ChatStorage.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = ChatStorage.db; path = ../../../../../../../Documents/ChatStorage.db; sourceTree = "<group>"; };
 		35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OoohBaby-Regular.ttf"; path = "../../관련자료/외부폰트/Oooh_Baby/OoohBaby-Regular.ttf"; sourceTree = "<group>"; };
 		35B47ACD2A6A7577007B0C25 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
 		35CBFAAD2A0CC4330053AEDE /* OSSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -179,9 +179,9 @@
 		3582D2BF29E7D1A1003AB26C /* resource */ = {
 			isa = PBXGroup;
 			children = (
+				35A7820C2AC0863A00724717 /* ChatStorage.db */,
 				356DBCC52A52BBB600EC1F15 /* OpenSans-VariableFont_wdth,wght.ttf */,
 				35B3CB8C2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf */,
-				35B3CB882A45729C007E7D6B /* ChatStorage.db */,
 				3582D2C029E7D1D9003AB26C /* send_loading.json */,
 			);
 			path = resource;
@@ -447,12 +447,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				35B3CB8D2A4AC5EB007E7D6B /* OoohBaby-Regular.ttf in Resources */,
-				35B3CB892A45729C007E7D6B /* ChatStorage.db in Resources */,
 				35DCA52D29D421710020984A /* LaunchScreen.storyboard in Resources */,
 				356DBCC62A52BBB600EC1F15 /* OpenSans-VariableFont_wdth,wght.ttf in Resources */,
 				35DCA52A29D421710020984A /* Assets.xcassets in Resources */,
 				3582D2C129E7D1D9003AB26C /* send_loading.json in Resources */,
 				35DCA52829D4216E0020984A /* Main.storyboard in Resources */,
+				35A7820D2AC0863A00724717 /* ChatStorage.db in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
