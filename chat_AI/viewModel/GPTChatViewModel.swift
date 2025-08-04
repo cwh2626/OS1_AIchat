@@ -98,47 +98,65 @@ class GPTChatViewModel {
     }
     
     func fetchGPT3Response(completion: @escaping (String?, finishReasonState?, Int?) -> Void) {
-                
         let json: [String: Any] = [
             "model": "gpt-3.5-turbo",
             "messages": messages
         ]
 
-        let jsonData = try? JSONSerialization.data(withJSONObject: json)
-        var request = URLRequest(url: URL(string: apiUrl)!)
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json),
+              let url = URL(string: apiUrl) else {
+            completion(nil, nil, nil)
+            return
+        }
+
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = jsonData
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
 
-        print(#function,messages)
+        print(#function, messages)
+
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data, error == nil else {
-                print(error?.localizedDescription ?? "No data")
+                print("❌ Error: \(error?.localizedDescription ?? "Unknown error")")
                 completion(nil, nil, nil)
                 return
             }
 
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    print(json)
-                    if let choices = json["choices"] as? [[String: Any]] {
-                        print(choices)
-                        if let firstChoice = choices.first, let text = firstChoice["message"] as? [String: Any], let content = text["content"] as? String, let finishReason = firstChoice["finish_reason"] as? String, let tokens = json["usage"] as? [String: Int], let totalTokens = tokens["total_tokens"]    {
-                            print("####finish_reason = \(finishReason)")
-                            
-                            completion(content, finishReasonState(rawValue: finishReason), totalTokens)
+                    if let choices = json["choices"] as? [[String: Any]],
+                       let firstChoice = choices.first,
+                       let message = firstChoice["message"] as? [String: Any],
+                       let content = message["content"] as? String,
+                       let finishReasonStr = firstChoice["finish_reason"] as? String,
+                       let usage = json["usage"] as? [String: Any],
+                       let totalTokens = usage["total_tokens"] as? Int {
+                        
+                        // 유니코드 디코딩
+                        let jsonReadyString = "\"\(content)\""
+                        if let decodedData = jsonReadyString.data(using: .utf8),
+                           let decodedContent = try? JSONDecoder().decode(String.self, from: decodedData) {
+                            completion(decodedContent, finishReasonState(rawValue: finishReasonStr), totalTokens)
+                            return
+                        } else {
+                            completion(content, finishReasonState(rawValue: finishReasonStr), totalTokens)
+                            return
                         }
-                    } else if let error = json["error"] as? [String: String] {
-                       if let message = error["message"], let errorCode = error["code"]  {
-                           print("code:",errorCode)
-                           completion(message, finishReasonState(rawValue: errorCode), 0)
-                           print(message)
-                       }
+                    }
+
+                    // 오류 처리
+                    if let error = json["error"] as? [String: Any],
+                       let message = error["message"] as? String,
+                       let code = error["code"] as? String {
+                        print("API Error code:", code)
+                        completion(message, finishReasonState(rawValue: code), 0)
+                        return
                     }
                 }
-            } catch let error as NSError {
-                print("Error parsing JSON response: \(error.localizedDescription)")
+            } catch {
+                print("❌ JSON parsing error: \(error.localizedDescription)")
                 completion(nil, nil, nil)
             }
         }
