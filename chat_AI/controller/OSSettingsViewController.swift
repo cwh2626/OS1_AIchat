@@ -13,7 +13,7 @@ import RxCocoa
 class OSSettingsViewController: UIViewController, CustomTableViewCellDelegate {
     // MARK: - Properties and Constants
     private var isStartupView: Bool
-    private let toolTipMessage = "우측 상단의 '+' 버튼을 눌러 OS를 커스텀하세요. 성격, 행동 등을 직접 설정할 수 있습니다.\n\n최대 5개의 설정 카드를 추가할 수 있으며, 영어로 설정하는 것이 인식률을 향상시킬 수 있습니다."
+    private let toolTipMessage = "우측 상단의 '+' 버튼을 눌러 OS를 커스텀하세요. 성격, 행동 등을 직접 설정할 수 있습니다.\n최대 5개의 설정 카드를 추가할 수 있습니다."
     private var cellHeights: [CGFloat] = []
     private var sysData: [chatVO] = []
     private let cellIdentifier = "CustomCell"
